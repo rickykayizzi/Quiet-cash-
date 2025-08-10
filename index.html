@@ -8,6 +8,13 @@
   <!-- Chart.js & jsPDF (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js');
+  }
+</script>
 
   <style>
     :root{--bg:#f7f8fa;--card:#fff;--text:#222;--muted:#667;--accent:#1976d2;--good:#2e7d32;--bad:#d32f2f;--warn:#f9a825}
