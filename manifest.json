@@ -1,7 +1,7 @@
 {
   "name": "Quiet Cash",
   "short_name": "QuietCash",
-  "description": "Own every shilling. Quietly.",
+  "description": "Grow In Silence",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -18,5 +18,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "1"
 }
