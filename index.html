@@ -438,15 +438,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-navigator.serviceWorker.ready.then(reg => {
-  reg.sync.register('sync-transactions');
-});
-navigator.serviceWorker.ready.then(async reg => {
-  try {
-    await reg.periodicSync.register('update-data', { minInterval: 24 * 60 * 60 * 1000 });
-  } catch (err) {
-    console.error('Periodic Sync not available', err);
-  }
-});
 </body>
 </html>
