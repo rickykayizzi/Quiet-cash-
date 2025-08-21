@@ -1,442 +1,242 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>QUIET CASH</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiet Cash</title>
 
-  <!-- Chart.js & jsPDF (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4CAF50">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js');
-  }
-</script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase (compat builds so we can use firebase.auth() style APIs) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <style>
-    :root{--bg:#f7f8fa;--card:#fff;--text:#222;--muted:#667;--accent:#1976d2;--good:#2e7d32;--bad:#d32f2f;--warn:#f9a825}
+    :root { --brand:#e50914; --bg:#f9f9f9; --text:#333; }
     *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); margin:0; padding:16px; max-width:980px; margin-left:auto;margin-right:auto}
-    .card{background:var(--card); padding:14px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06); margin-bottom:12px}
-    h1{margin:0;font-size:18px}
-    .muted{color:var(--muted);font-size:13px}
-    .row{display:flex;gap:8px;align-items:center}
-    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
-    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(0,0,0,0.06);padding:8px 10px}
-    input,select,textarea{padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);width:100%;background:transparent}
-    .small{font-size:13px}
-    .screen{display:none}
-    .screen.active{display:block}
-    table{width:100%;border-collapse:collapse}
-    td,th{padding:8px;border-bottom:1px solid rgba(0,0,0,0.06);font-size:14px}
-    .bar{height:18px;background:#eee;border-radius:10px;overflow:hidden}
-    .bar-fill{height:100%;width:0;color:#fff;text-align:center;font-weight:700}
-    canvas{max-width:100%}
-    .ads{padding:12px;border-radius:8px;border:1px dashed rgba(0,0,0,0.06);text-align:center;color:var(--muted)}
-    @media(max-width:820px){ body{padding:12px} }
+    body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--text); }
+    header { background:var(--brand); color:#fff; padding:15px; text-align:center; font-size:20px; font-weight:bold; }
+    .content { padding:15px; display:none; animation:fade .3s ease; }
+    .active { display:block; }
+    @keyframes fade { from{opacity:0} to{opacity:1} }
+
+    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
+    .card { background:#fff; border-radius:15px; padding:20px; box-shadow:0 3px 8px rgba(0,0,0,.1); text-align:center; font-weight:bold; transition:.2s; }
+    .card:active { transform:scale(.98); }
+
+    .nav { position:fixed; bottom:0; left:0; right:0; display:flex; gap:4px; justify-content:space-around; background:#fff; border-top:1px solid #ddd; }
+    .nav button { flex:1; padding:12px; border:none; background:none; font-size:14px; color:#555; }
+    .nav .activeTab { color:var(--brand); font-weight:bold; }
+
+    .panel { background:#fff; padding:20px; border-radius:15px; box-shadow:0 3px 8px rgba(0,0,0,.1); }
+    label { display:block; margin-top:10px; font-size:14px; }
+    input { width:100%; padding:10px; margin-top:6px; border:1px solid #ccc; border-radius:10px; }
+    .btn { background:var(--brand); color:#fff; padding:12px; border:none; border-radius:10px; margin-top:15px; width:100%; font-size:16px; }
+    .link { background:none; color:var(--brand); border:none; margin-top:10px; width:100%; text-align:center; }
+
+    .balance-card { background:#fff; padding:20px; border-radius:15px; box-shadow:0 3px 8px rgba(0,0,0,.1); text-align:center; }
+    .stars { font-size:24px; color:#ccc; }
+    .stars .filled { color:gold; }
+
+    ul { padding-left:18px; }
+    li { margin:6px 0; }
+    .muted { color:#666; font-size:12px; }
   </style>
 </head>
 <body>
+<header>Quiet Cash</header>
 
-  <div class="card">
-    <h1>QUIET CASH</h1>
-    <div class="muted small"> <strong>Grow In Silence</strong></div>
+<!-- Auth -->
+<div id="auth" class="content active">
+  <div class="panel">
+    <h3 id="authTitle">Login</h3>
+    <label>Email</label><input id="email" inputmode="email" autocomplete="email" />
+    <label>Password</label><input id="pass" type="password" autocomplete="current-password" />
+    <button class="btn" id="authActionBtn" onclick="doLogin()">Login</button>
+    <button class="link" onclick="toggleAuth()">No account? Create one</button>
+    <p class="muted">Your data is stored securely per account.</p>
   </div>
+</div>
 
-  <!-- LOCK SCREEN -->
-  <div id="lockScreen" class="card screen active">
-    <div class="small muted">Enter password or PIN</div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <input id="pwInput" type="password" placeholder="Password / PIN" />
-      <button onclick="unlock()">Unlock</button>
-    </div>
-    <div class="muted small" style="margin-top:8px"></div>
+<!-- Home -->
+<div id="home" class="content">
+  <div class="grid">
+    <div class="card" onclick="addTransaction('in')">Cash In</div>
+    <div class="card" onclick="addTransaction('out')">Cash Out</div>
+    <div class="card" onclick="showHistory()">History</div>
+    <div class="card" onclick="switchTab('reports')">Reports</div>
+    <div class="card" onclick="switchTab('balance')">Loss Check</div>
   </div>
+  <div id="historyList" style="margin-top:20px;"></div>
+</div>
 
-  <!-- APP ROOT (hidden until unlock) -->
-  <div id="appRoot" style="display:none">
-    <nav style="display:flex;gap:8px;margin-bottom:12px">
-      <button class="nav" data-screen="dashboard">Dashboard</button>
-      <button class="nav" data-screen="add">+ Add</button>
-      <button class="nav" data-screen="history">History</button>
-      <button class="nav" data-screen="report">Report</button>
-      <button class="nav" data-screen="settings">Settings</button>
-    </nav>
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="card screen">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="muted small">Current Balance</div>
-          <div id="balance" style="font-weight:800;font-size:26px;margin-top:6px">UGX 0</div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="openAdd('Cash In')">+ CASH IN</button>
-          <button onclick="openAdd('Cash Out')">− CASH OUT</button>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <div style="flex:1" class="card"><div class="muted small">Cash In</div><div id="cashIn" style="font-weight:700">UGX 0</div></div>
-        <div style="flex:1" class="card"><div class="muted small">Cash Out</div><div id="cashOut" style="font-weight:700">UGX 0</div></div>
-        <div style="flex:1" class="card"><div class="muted small">Net Cash</div><div id="netCash" style="font-weight:700">UGX 0</div></div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div class="muted small">Today's Transactions</div>
-          <div>
-            <button class="ghost" onclick="exportCSV()">Export CSV</button>
-            <button class="ghost" onclick="exportPDF()">Export PDF</button>
-          </div>
-        </div>
-        <div id="todayTransactions" style="margin-top:8px" class="small muted">No transactions</div>
-      </div>
-
-      <div class="card" style="margin-top:12px"><div class="muted small">Weekly Cash Flow (7d)</div><div id="weeklySummary" style="margin-top:8px" class="small muted">No data</div></div>
-      <div class="card" style="margin-top:12px"><div class="muted small">Top 3 Days This Month</div><div id="monthlyTop3" style="margin-top:8px" class="small muted">No data</div></div>
-
-      <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-        <div style="flex:1" class="card">
-          <div style="display:flex;justify-content:space-between"><div class="muted small">Loss Check</div><div id="lossPct">0%</div></div>
-          <div class="bar" style="margin-top:8px"><div id="lossBar" class="bar-fill">0%</div></div>
-          <div id="lossText" class="muted small" style="margin-top:8px">No issues</div>
-        </div>
-        <div id="ads" class="card" style="width:220px"><div class="muted small">Sponsored</div><div class="ads" style="margin-top:8px">Ad placeholder — premium hides this.</div></div>
-      </div>
-    </div>
-
-    <!-- Add -->
-    <div id="add" class="card screen" style="display:none">
-      <div class="small muted">Add Transaction</div>
-      <div style="display:grid;gap:8px;margin-top:8px">
-        <select id="txType"><option>Cash In</option><option>Cash Out</option></select>
-        <input id="txAmount" type="number" placeholder="Amount" />
-        <input id="txReason" placeholder="Reason (e.g. transport)" />
-        <input id="txDate" type="date" />
-        <label><input id="txRecurring" type="checkbox" /> Make recurring</label>
-        <select id="txInterval" style="display:none"><option value="7">Weekly</option><option value="30">Monthly</option></select>
-        <div style="display:flex;gap:8px">
-          <button onclick="saveTx()">Save</button>
-          <button class="ghost" onclick="showScreen('dashboard')">Cancel</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div id="history" class="card screen" style="display:none">
-      <div class="small muted">History</div>
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-        <input id="histSearch" placeholder="Search reason/amount" />
-        <input id="histFrom" type="date" />
-        <input id="histTo" type="date" />
-        <select id="histType"><option value="">All</option><option>Cash In</option><option>Cash Out</option></select>
-        <button class="ghost" onclick="applyHistoryFilters()">Filter</button>
-        <button class="ghost" onclick="resetHistoryFilters()">Reset</button>
-      </div>
-      <div id="historyList" style="margin-top:8px;max-height:360px;overflow:auto"></div>
-      <div style="margin-top:8px"><button class="ghost" onclick="showScreen('dashboard')">Back</button></div>
-    </div>
-
-    <!-- Report -->
-    <div id="report" class="card screen" style="display:none">
-      <div class="small muted">Reports</div>
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-        <button class="ghost" onclick="drawCharts()">Refresh charts</button>
-        <button class="ghost" onclick="startStripeCheckout()">Buy Premium</button>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <canvas id="chartDaily" height="160" style="flex:1"></canvas>
-        <canvas id="chartWeekly" height="160" style="flex:1"></canvas>
-        <canvas id="chartMonthly" height="160" style="flex:1"></canvas>
-      </div>
-    </div>
-
-    <!-- Settings -->
-    <div id="settings" class="card screen" style="display:none">
-      <div class="small muted">Settings</div>
-      <div style="display:grid;gap:8px;margin-top:8px">
-        <input id="newPassword" type="password" placeholder="New password (leave blank to keep)" />
-        <div style="display:flex;gap:8px">
-          <input id="pin" placeholder="4-digit PIN" maxlength="4" style="width:120px"/>
-          <button class="ghost" onclick="savePIN()">Save PIN</button>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small muted">Auto-lock (mins)</label>
-          <input id="autoLock" type="number" min="0" style="width:90px"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small muted">Low balance threshold</label>
-          <input id="lowThreshold" type="number" style="width:140px"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small muted">Weekly overspend</label>
-          <input id="weeklyLimit" type="number" style="width:140px"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label class="small muted">Monthly overspend</label>
-          <input id="monthlyLimit" type="number" style="width:140px"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
-          <label class="small muted">Currency</label>
-          <input id="currency" placeholder="UGX" style="width:120px"/>
-          <label class="small muted">Premium</label>
-          <input id="premium" type="checkbox"/>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button onclick="saveSettings()">Save Settings</button>
-          <button class="ghost" onclick="showScreen('dashboard')">Back</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- success -->
-    <div id="success" class="card screen" style="display:none">
-      <div class="small muted">Payment verification</div>
-      <div id="successMsg" style="margin-top:8px"></div>
-      <div style="margin-top:8px"><button class="ghost" onclick="showScreen('dashboard')">Close</button></div>
-    </div>
+<!-- Reports -->
+<div id="reports" class="content">
+  <div class="panel" style="margin-bottom:12px">
+    <strong>Summary</strong>
+    <div id="summary" class="muted"></div>
   </div>
+  <canvas id="reportChart"></canvas>
+</div>
+
+<!-- Balance -->
+<div id="balance" class="content">
+  <div class="balance-card">
+    <h2 id="balValue">Balance: UGX 0</h2>
+    <h3 id="lossValue">Loss: UGX 0</h3>
+    <div class="stars" id="ratingStars">★★★★★</div>
+  </div>
+</div>
+
+<!-- Bottom Nav (hidden until logged in) -->
+<div class="nav" id="bottomNav" style="display:none;">
+  <button id="tabHome" class="activeTab" onclick="switchTab('home')">Home</button>
+  <button id="tabReports" onclick="switchTab('reports')">Reports</button>
+  <button id="tabBalance" onclick="switchTab('balance')">Balance</button>
+  <button onclick="logout()">Logout</button>
+</div>
 
 <script>
-/* =========================
-   Single-file PWA + App JS
-   ========================= */
+  // ---- Firebase config (yours) ----
+  const firebaseConfig = {
+    apiKey: "AIzaSyCsrGLLl5_ihXNhpwpQC2iF4p2a7S0GULQ",
+    authDomain: "quiet-cash.firebaseapp.com",
+    projectId: "quiet-cash",
+    storageBucket: "quiet-cash.firebasestorage.app",
+    messagingSenderId: "976905194023",
+    appId: "1:976905194023:web:35c67cbc71b37cc1609c02",
+    measurementId: "G-L4MT65TZ1Z"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-const STORAGE_KEY = 'quiet_cash_onefile_v1';
-let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || {
-  settings: { password: '1234', pin:'', autoLockMins:5, lowThreshold:0, weeklyLimit:0, monthlyLimit:0, currency:'UGX', premium:false },
-  transactions: []
-};
-
-/* UI wiring */
-document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click', e=> showScreen(e.currentTarget.dataset.screen)));
-document.getElementById('txDate').valueAsDate = new Date();
-document.getElementById('currency').value = state.settings.currency;
-document.getElementById('autoLock').value = state.settings.autoLockMins;
-document.getElementById('lowThreshold').value = state.settings.lowThreshold;
-document.getElementById('weeklyLimit').value = state.settings.weeklyLimit;
-document.getElementById('monthlyLimit').value = state.settings.monthlyLimit;
-document.getElementById('premium').checked = state.settings.premium;
-document.getElementById('txRecurring').addEventListener('change', e=> document.getElementById('txInterval').style.display = e.target.checked ? 'block' : 'none');
-
-/* helpers */
-function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function formatMoney(v){ return (state.settings.currency||'UGX') + ' ' + Number((v||0)).toLocaleString(); }
-function uid(p='t'){ return p + Date.now() + Math.floor(Math.random()*999); }
-
-/* unlock */
-function unlock(){
-  const v = (document.getElementById('pwInput').value||'').trim(); document.getElementById('pwInput').value='';
-  if(v === state.settings.password || (state.settings.pin && v === state.settings.pin)){
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('appRoot').style.display='block';
-    renderAll(); startAutoLock(); applyRecurring(); _qc_log('unlock');
-    return;
+  // ---- UI helpers ----
+  function switchTab(tab){
+    document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('activeTab'));
+    const tabBtn = document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));
+    if(tabBtn) tabBtn.classList.add('activeTab');
+    if(tab==="reports") renderChart();
+    if(tab==="balance") updateBalance();
   }
-  alert('Wrong password / PIN');
-}
 
-/* screens */
-function showScreen(id){
-  resetAutoLock();
-  document.querySelectorAll('.screen').forEach(s=>{ s.classList.remove('active'); s.style.display='none'; });
-  if(id==='lockScreen'){ document.getElementById('lockScreen').classList.add('active'); document.getElementById('lockScreen').style.display='block'; return; }
-  const el = document.getElementById(id); if(!el) return;
-  el.classList.add('active'); el.style.display='block';
-  if(id==='dashboard') renderDashboard();
-  if(id==='history') renderHistory();
-  if(id==='report') drawCharts();
-  if(id==='settings') loadSettings();
-}
+  let signupMode = false;
+  function toggleAuth(){
+    signupMode = !signupMode;
+    document.getElementById('authTitle').innerText = signupMode ? 'Create Account' : 'Login';
+    document.getElementById('authActionBtn').innerText = signupMode ? 'Create Account' : 'Login';
+  }
 
-/* add tx */
-function openAdd(type){ showScreen('add'); document.getElementById('txType').value = type || 'Cash In'; document.getElementById('txDate').valueAsDate = new Date(); document.getElementById('txAmount').value=''; document.getElementById('txReason').value=''; document.getElementById('txRecurring').checked=false; document.getElementById('txInterval').style.display='none'; }
-function saveTx(){
-  resetAutoLock();
-  const type = document.getElementById('txType').value;
-  const amount = parseFloat(document.getElementById('txAmount').value);
-  const reason = (document.getElementById('txReason').value||'').trim() || 'No reason';
-  const date = document.getElementById('txDate').value;
-  if(!amount || !date) return alert('Amount and date required');
-  const tx = { id:uid(), type, amount, reason, date, createdAt: new Date().toISOString() };
-  if(document.getElementById('txRecurring').checked) tx.recurring = { intervalDays: parseInt(document.getElementById('txInterval').value||30), nextDate: nextDate(date, parseInt(document.getElementById('txInterval').value||30)) };
-  state.transactions.push(tx); saveState(); _qc_log('transaction_add',{type,amount,reason}); showScreen('dashboard');
-}
+  function toast(msg){ alert(msg); }
 
-function nextDate(str, days){ const d=new Date(str); d.setDate(d.getDate()+days); return d.toISOString().split('T')[0]; }
-function applyRecurring(){
-  const today = new Date().toISOString().split('T')[0]; let applied=0;
-  state.transactions.filter(t=>t.recurring).forEach(template=>{
-    while(template.recurring && template.recurring.nextDate <= today){
-      const occ = { id: uid(), type: template.type, amount: template.amount, reason: template.reason, date: template.recurring.nextDate, createdAt: new Date().toISOString() };
-      state.transactions.push(occ); applied++;
-      template.recurring.nextDate = nextDate(template.recurring.nextDate, template.recurring.intervalDays);
+  // ---- Auth actions ----
+  function doLogin(){
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('pass').value;
+    if(!email || !pass) return toast("Enter email and password");
+    auth.signInWithEmailAndPassword(email, pass).catch(e=>toast(e.message));
+  }
+  function doSignup(){
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('pass').value;
+    if(!email || !pass) return toast("Enter email and password");
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(()=>toast("Account created. You are now signed in."))
+      .catch(e=>toast(e.message));
+  }
+  // Wire the same button to login or signup depending on mode
+  document.getElementById('authActionBtn').onclick = ()=> signupMode ? doSignup() : doLogin();
+
+  function logout(){ auth.signOut(); }
+
+  // ---- App state ----
+  let transactions = [];
+  let chart;
+
+  auth.onAuthStateChanged(async (user)=>{
+    if(user){
+      document.getElementById('bottomNav').style.display = 'flex';
+      switchTab('home');
+      await loadTransactions();
+    }else{
+      document.getElementById('bottomNav').style.display = 'none';
+      switchTab('auth');
     }
   });
-  if(applied>0){ saveState(); renderAll(); alert(applied + ' recurring tx applied'); }
-}
 
-/* dashboard */
-function renderDashboard(){
-  const txs = state.transactions; let inSum=0,outSum=0;
-  const today = new Date().toISOString().split('T')[0]; const weekCut=new Date(); weekCut.setDate(weekCut.getDate()-6);
-  let todayHtml='', weekHtml=''; const monthMap={};
-  txs.forEach(t=>{ if(t.type==='Cash In') inSum+=t.amount; else outSum+=t.amount; if(t.date===today) todayHtml += `<div>${t.date} • ${t.reason} • ${formatMoney(t.amount)} • ${t.type}</div>`; const d=new Date(t.date+'T00:00:00'); if(d>=weekCut) weekHtml += `<div>${t.date} • ${t.reason} • ${formatMoney(t.amount)} • ${t.type}</div>`; monthMap[t.date]=(monthMap[t.date]||0)+(t.type==='Cash In'?t.amount:-t.amount); });
-  const top3 = Object.entries(monthMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
-  const topHtml = top3.length ? top3.map(e=>`<div>${e[0]} • ${formatMoney(e[1])}</div>`).join('') : '<div class="muted small">No data</div>';
-  document.getElementById('balance').innerText = formatMoney(inSum - outSum);
-  document.getElementById('cashIn').innerText = formatMoney(inSum);
-  document.getElementById('cashOut').innerText = formatMoney(outSum);
-  document.getElementById('netCash').innerText = formatMoney(inSum - outSum);
-  document.getElementById('todayTransactions').innerHTML = todayHtml || '<div class="muted small">No transactions today</div>';
-  document.getElementById('weeklySummary').innerHTML = weekHtml || '<div class="muted small">No transactions this week</div>';
-  document.getElementById('monthlyTop3').innerHTML = topHtml;
-  const lossPct = inSum === 0 ? 100 : Math.min(100, Math.round((outSum / inSum) * 100));
-  const lossBar = document.getElementById('lossBar'); lossBar.style.width = lossPct + '%'; lossBar.textContent = lossPct + '%'; document.getElementById('lossPct').innerText = lossPct + '%';
-  if(lossPct < 50){ lossBar.style.background = 'var(--good)'; document.getElementById('lossText').innerText = 'Healthy'; }
-  else if(lossPct < 80){ lossBar.style.background = 'var(--warn)'; document.getElementById('lossText').innerText = 'Moderate spending'; }
-  else { lossBar.style.background = 'var(--bad)'; document.getElementById('lossText').innerText = 'High loss'; }
-  if(state.settings.lowThreshold && (inSum - outSum) <= state.settings.lowThreshold) setTimeout(()=>alert('Low balance alert: below threshold'),200);
-  const weeklyOut = state.transactions.filter(t=>t.type==='Cash Out' && new Date(t.date+'T00:00:00')>=weekCut).reduce((a,b)=>a+b.amount,0);
-  if(state.settings.weeklyLimit && weeklyOut > state.settings.weeklyLimit) setTimeout(()=>alert('Weekly overspend alert'),300);
-  const now=new Date(); const monthlyOut = state.transactions.filter(t=>t.type==='Cash Out' && new Date(t.date+'T00:00:00').getMonth()===now.getMonth()).reduce((a,b)=>a+b.amount,0);
-  if(state.settings.monthlyLimit && monthlyOut > state.settings.monthlyLimit) setTimeout(()=>alert('Monthly overspend alert'),400);
-  document.getElementById('ads').style.display = state.settings.premium ? 'none' : 'block';
-}
-
-/* history */
-function renderHistory(){
-  const q=(document.getElementById('histSearch').value||'').toLowerCase(); const from=document.getElementById('histFrom').value; const to=document.getElementById('histTo').value; const typeF=document.getElementById('histType').value;
-  const filtered = state.transactions.slice().reverse().filter(t=>{ if(q && !(t.reason.toLowerCase().includes(q) || String(t.amount).includes(q))) return false; if(from && t.date < from) return false; if(to && t.date > to) return false; if(typeF && t.type !== typeF) return false; return true; });
-  const container = document.getElementById('historyList');
-  if(filtered.length===0){ container.innerHTML = '<div class="muted small">No transactions</div>'; return; }
-  let html = '<table><tr><th>Date</th><th>Type</th><th>Reason</th><th>Amount</th><th></th></tr>';
-  filtered.forEach(t=> html += `<tr><td>${t.date}</td><td>${t.type}</td><td>${t.reason}</td><td>${formatMoney(t.amount)}</td><td><button class="ghost" onclick="editTx('${t.id}')">Edit</button> <button style="background:var(--bad);color:#fff" onclick="deleteTx('${t.id}')">Delete</button></td></tr>`);
-  html += '</table>'; container.innerHTML = html;
-}
-function applyHistoryFilters(){ renderHistory(); }
-function resetHistoryFilters(){ document.getElementById('histSearch').value=''; document.getElementById('histFrom').value=''; document.getElementById('histTo').value=''; document.getElementById('histType').value=''; renderHistory(); }
-function editTx(id){ const tx = state.transactions.find(t=>t.id===id); if(!tx) return alert('Not found'); showScreen('add'); document.getElementById('txType').value=tx.type; document.getElementById('txAmount').value=tx.amount; document.getElementById('txReason').value=tx.reason; document.getElementById('txDate').value=tx.date; state.transactions = state.transactions.filter(t=>t.id!==id); saveState(); }
-function deleteTx(id){ if(!confirm('Delete this transaction?')) return; state.transactions = state.transactions.filter(t=>t.id!==id); saveState(); renderAll(); }
-
-/* charts */
-let chartDaily=null,chartWeekly=null,chartMonthly=null;
-function drawCharts(){
-  const now=new Date(); const today=now.toISOString().split('T')[0]; const weekCut=new Date(); weekCut.setDate(weekCut.getDate()-6);
-  const mapDaily={},mapWeek={},mapMonth={};
-  state.transactions.forEach(t=>{
-    const key = `${t.reason} [${t.type}]`; const d=new Date(t.date+'T00:00:00');
-    if(t.date===today) mapDaily[key]=(mapDaily[key]||0)+t.amount;
-    if(d>=weekCut) mapWeek[key]=(mapWeek[key]||0)+t.amount;
-    if(d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear()) mapMonth[key]=(mapMonth[key]||0)+t.amount;
-  });
-  drawPie('chartDaily',mapDaily,chartDaily,c=>chartDaily=c);
-  drawPie('chartWeekly',mapWeek,chartWeekly,c=>chartWeekly=c);
-  drawPie('chartMonthly',mapMonth,chartMonthly,c=>chartMonthly=c);
-}
-function drawPie(canvasId,map,oldChart,setRef){
-  const labels=Object.keys(map); const data=labels.map(k=>map[k]); const colors=labels.map(l=> l.includes('Cash In') ? '#2e7d32' : '#d32f2f' ); const ctx=document.getElementById(canvasId).getContext('2d');
-  try{ if(oldChart) oldChart.destroy(); }catch(e){} const chart = new Chart(ctx,{type:'pie',data:{labels,datasets:[{data,backgroundColor:colors}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}}); if(setRef) setRef(chart);
-}
-
-/* export */
-function exportCSV(){
-  if(state.transactions.length===0) return alert('No transactions to export');
-  const rows=[['date','type','reason','amount']]; state.transactions.forEach(t=> rows.push([t.date,t.type,(t.reason||'').replace(/"/g,'""'),t.amount]));
-  const csv = rows.map(r=> r.map(c=>`"${String(c)}"`).join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='quiet_cash_export.csv'; a.click(); _qc_log('export_csv');
-}
-function exportPDF(){
-  if(!window.jspdf){ alert('PDF export requires jsPDF'); return; } const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.setFontSize(16); doc.text('Quiet Cash Report',14,16);
-  const inSum = state.transactions.filter(t=>t.type==='Cash In').reduce((a,b)=>a+b.amount,0);
-  const outSum = state.transactions.filter(t=>t.type==='Cash Out').reduce((a,b)=>a+b.amount,0);
-  doc.setFontSize(11); doc.text(`Cash In: ${formatMoney(inSum)}`,14,26); doc.text(`Cash Out: ${formatMoney(outSum)}`,14,34); doc.text(`Net: ${formatMoney(inSum-outSum)}`,14,42);
-  doc.text('Recent transactions:',14,52); let y=58;
-  state.transactions.slice(-12).reverse().forEach(t=>{ doc.text(`${t.date} • ${t.reason} • ${t.type} • ${formatMoney(t.amount)}`,14,y); y+=6; if(y>280){ doc.addPage(); y=14; } });
-  doc.save('quiet_cash_report.pdf'); _qc_log('export_pdf');
-}
-
-/* settings */
-function loadSettings(){ document.getElementById('newPassword').value=''; document.getElementById('pin').value=state.settings.pin||''; document.getElementById('autoLock').value=state.settings.autoLockMins||5; document.getElementById('lowThreshold').value=state.settings.lowThreshold||0; document.getElementById('weeklyLimit').value=state.settings.weeklyLimit||0; document.getElementById('monthlyLimit').value=state.settings.monthlyLimit||0; document.getElementById('currency').value=state.settings.currency||'UGX'; document.getElementById('premium').checked=!!state.settings.premium; }
-function saveSettings(){ const np=(document.getElementById('newPassword').value||'').trim(); if(np) state.settings.password = np; state.settings.pin=(document.getElementById('pin').value||'').trim(); state.settings.autoLockMins=parseInt(document.getElementById('autoLock').value)||0; state.settings.lowThreshold=parseFloat(document.getElementById('lowThreshold').value)||0; state.settings.weeklyLimit=parseFloat(document.getElementById('weeklyLimit').value)||0; state.settings.monthlyLimit=parseFloat(document.getElementById('monthlyLimit').value)||0; state.settings.currency=document.getElementById('currency').value||'UGX'; state.settings.premium=document.getElementById('premium').checked; saveState(); alert('Settings saved'); }
-
-/* clear */
-function confirmClear(){ const p = prompt('Enter password to confirm clearing all data:'); if(p !== state.settings.password) return alert('Incorrect password'); if(!confirm('This will delete ALL transactions. Continue?')) return; state.transactions=[]; saveState(); renderAll(); alert('All data cleared'); }
-
-/* auto-lock */
-let autoLockTimer=null;
-function startAutoLock(){ resetAutoLock(); }
-function resetAutoLock(){ if(autoLockTimer) clearTimeout(autoLockTimer); const mins = parseInt(state.settings.autoLockMins||0); if(mins<=0) return; autoLockTimer = setTimeout(()=>{ document.getElementById('appRoot').style.display='none'; document.getElementById('lockScreen').style.display='block'; document.getElementById('lockScreen').classList.add('active'); }, mins*60*1000); }
-
-/* stripe & analytics placeholders */
-(function setupFirebase(){
-  const FIREBASE_CONFIG = null; // <-- paste your Firebase web config object here to enable analytics
-  if(FIREBASE_CONFIG){
-    const s1=document.createElement('script'); s1.src='https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js'; document.head.appendChild(s1);
-    const s2=document.createElement('script'); s2.src='https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics-compat.js'; document.head.appendChild(s2);
-    s2.onload = ()=>{ firebase.initializeApp(FIREBASE_CONFIG); if(firebase.analytics) firebase.analytics(); console.log('Firebase initialized'); };
+  // ---- Data actions ----
+  async function addTransaction(type){
+    const amtStr = prompt("Enter amount:");
+    if(!amtStr) return;
+    const amount = +amtStr;
+    if(isNaN(amount) || amount<=0) return toast("Enter a valid amount");
+    const t = { type, amount, date: Date.now() };
+    const uid = auth.currentUser.uid;
+    await db.collection("users").doc(uid).collection("transactions").add(t);
+    toast("Transaction saved!");
+    await loadTransactions();
   }
-})();
-function _qc_log(evt, props){ try{ if(window.firebase && firebase.analytics) firebase.analytics().logEvent(evt, props||{}); }catch(e){} console.log('log',evt,props); }
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_REPLACE_ME'; const BACKEND_BASE = ''; // set to your server base URL when you deploy
-async function startStripeCheckout(){
-  _qc_log('purchase_start');
-  try{
-    const priceId = prompt('Enter Stripe Price ID (for testing)');
-    if(!priceId) return alert('Price ID required');
-    const res = await fetch((BACKEND_BASE || '') + '/create-checkout-session', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ priceId }) });
-    const j = await res.json();
-    if(j && j.sessionUrl){ window.location = j.sessionUrl; } else alert('Checkout error: ' + (j.error || j.message || 'unknown'));
-  }catch(err){ console.error(err); alert('Checkout request failed'); }
-}
+  async function loadTransactions(){
+    const uid = auth.currentUser.uid;
+    const snap = await db.collection("users").doc(uid).collection("transactions")
+                  .orderBy("date","desc").get();
+    transactions = snap.docs.map(d=>d.data());
+    showHistory();
+    updateBalance();
+    updateSummary();
+  }
 
-/* register service worker (inline blob) to cache app on first load */
-(async function registerSW(){
-  const swCode = `
-    const CACHE_NAME = 'quiet-cash-cache-v1';
-    const ASSETS = ['/', location.pathname];
-    self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).catch(()=>{})); self.skipWaiting(); });
-    self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k=> k!==CACHE_NAME ? caches.delete(k) : Promise.resolve())))); self.clients.claim(); });
-    self.addEventListener('fetch', e => {
-      if(e.request.method !== 'GET') return;
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => { // cache fetched assets
-        try{ const copy = res.clone(); caches.open(CACHE_NAME).then(c=>c.put(e.request, copy)); }catch(err){}
-        return res;
-      }).catch(()=> caches.match('/'))));
+  function showHistory(){
+    let html = "<h3>History</h3><ul>";
+    transactions.forEach(t=>{
+      const d = new Date(t.date).toLocaleString();
+      html += `<li>${t.type==="in"?"➕":"➖"} ${t.amount} <span class="muted">(${d})</span></li>`;
     });
-  `;
-  try{
-    if('serviceWorker' in navigator){
-      const swBlob = new Blob([swCode], {type:'text/javascript'}); const swUrl = URL.createObjectURL(swBlob);
-      await navigator.serviceWorker.register(swUrl); console.log('SW registered');
-      // prompt install event listener (stores event for later)
-      window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); window._deferredInstallPrompt = e; /* you can call e.prompt() later to show install */ });
-    }
-  }catch(err){ console.warn('SW registration failed', err); }
-})();
+    html += "</ul>";
+    document.getElementById("historyList").innerHTML = html;
+  }
 
-/* small startup */
-function renderAll(){ renderDashboard(); renderHistory(); }
-window._qc_state = state; window._qc_save = saveState;
+  function computeTotals(){
+    const inflow = transactions.filter(t=>t.type==="in").reduce((a,b)=>a+b.amount,0);
+    const outflow = transactions.filter(t=>t.type==="out").reduce((a,b)=>a+b.amount,0);
+    return { inflow, outflow, net: inflow - outflow };
+  }
 
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(function(registration) {
-        console.log('Service Worker registered with scope:', registration.scope);
-      })
-      .catch(function(error) {
-        console.error('Service Worker registration failed:', error);
-      });
-  });
-}
+  function updateSummary(){
+    const { inflow, outflow, net } = computeTotals();
+    document.getElementById('summary').innerText =
+      `In: UGX ${inflow}  •  Out: UGX ${outflow}  •  Net: UGX ${net}`;
+  }
+
+  function renderChart(){
+    const { inflow, outflow, net } = computeTotals();
+    const ctx = document.getElementById("reportChart");
+    if(chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels:["Inflow","Outflow","Net Balance"],
+        datasets:[{ data:[inflow,outflow,net], backgroundColor:["#4caf50","#f44336","#2196f3"] }]
+      }
+    });
+  }
+
+  function updateBalance(){
+    const { inflow, outflow, net } = computeTotals();
+    const loss = Math.max(0, outflow - inflow);
+    document.getElementById("balValue").innerText = "Balance: UGX " + net;
+    document.getElementById("lossValue").innerText = "Loss: UGX " + loss;
+
+    const starsCount = Math.max(1, Math.min(5, 5 - Math.floor(loss / (Math.abs(net)+1) * 5)));
+    let html = "";
+    for(let i=1;i<=5;i++) html += `<span class="${i<=starsCount?"filled":""}">★</span>`;
+    document.getElementById("ratingStars").innerHTML = html;
+  }
 </script>
 </body>
 </html>
