@@ -1,242 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Quiet Cash</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quiet Cash</title>
+<meta name="theme-color" content="#000000"/>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Charts + PDF -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-  <!-- Firebase (compat builds so we can use firebase.auth() style APIs) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#0e0f11; --panel:#15171b; --muted:#9aa3ad; --text:#e8eef6;
+    --accent:#00e676; --accent2:#00c853; --danger:#ff1744; --warn:#ffb300; --brand:#00e5ff;
+    --edge:#22262b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  /* Splash */
+  .splash{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:#000;z-index:1000;font-weight:900;font-size:3rem;text-align:center;
+    background:linear-gradient(90deg,#ff0057,#ffcd00,#00e5ff,#7cff00,#ff00f7);
+    background-size:400% 400%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    animation:glow 2s ease-in-out infinite, rainbow 6s linear infinite, fadeOut 4s ease forwards;
+    text-shadow:0 0 25px rgba(255,255,255,.4)
+  }
+  @keyframes rainbow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  @keyframes glow{0%,100%{text-shadow:0 0 15px #fff,0 0 40px #ff00f7,0 0 60px #00e5ff}
+                  50%{text-shadow:0 0 25px #fff,0 0 50px #7cff00,0 0 80px #ffcd00}}
+  @keyframes fadeOut{0%{opacity:0;transform:scale(.9)}20%{opacity:1;transform:scale(1.03)}
+                     80%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
 
-  <style>
-    :root { --brand:#e50914; --bg:#f9f9f9; --text:#333; }
-    *{box-sizing:border-box}
-    body { margin:0; font-family:Arial, sans-serif; background:var(--bg); color:var(--text); }
-    header { background:var(--brand); color:#fff; padding:15px; text-align:center; font-size:20px; font-weight:bold; }
-    .content { padding:15px; display:none; animation:fade .3s ease; }
-    .active { display:block; }
-    @keyframes fade { from{opacity:0} to{opacity:1} }
+  /* App wrapper */
+  .app{max-width:880px;margin:0 auto;padding:16px;display:none}
+  header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px}
+  .title{font-weight:800;letter-spacing:.3px}
+  .actions{display:flex;gap:8px;align-items:center}
+  .btn{
+    background:var(--panel);border:1px solid var(--edge);color:var(--text);
+    padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;
+    transition:.2s;display:inline-flex;align-items:center;gap:8px
+  }
+  .btn:hover{border-color:#333;transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);color:#04110a;border-color:#0c3}
+  .btn.danger{background:#2a1217;border-color:#4a1a23;color:#ffd8de}
+  .btn.warn{background:#2a220d;border-color:#4a3a12;color:#ffe9b3}
+  .btn.ghost{background:transparent;border-color:#2a2d32}
 
-    .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
-    .card { background:#fff; border-radius:15px; padding:20px; box-shadow:0 3px 8px rgba(0,0,0,.1); text-align:center; font-weight:bold; transition:.2s; }
-    .card:active { transform:scale(.98); }
+  /* Grid cards */
+  .grid{display:grid;gap:12px}
+  @media(min-width:720px){ .grid{grid-template-columns:1.3fr .7fr} }
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:1rem;color:#cdd6df;font-weight:700}
+  .metric{font-size:28px;font-weight:900}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
 
-    .nav { position:fixed; bottom:0; left:0; right:0; display:flex; gap:4px; justify-content:space-around; background:#fff; border-top:1px solid #ddd; }
-    .nav button { flex:1; padding:12px; border:none; background:none; font-size:14px; color:#555; }
-    .nav .activeTab { color:var(--brand); font-weight:bold; }
+  /* Tables / lists */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{display:flex;justify-content:space-between;align-items:center;background:#101215;border:1px solid #1e2329;border-radius:12px;padding:10px}
+  .item .meta{font-size:.86rem;color:var(--muted)}
+  .badge{padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:800}
+  .badge.in{background:#0b2b20;color:#9effc9}
+  .badge.out{background:#2a1414;color:#ffc7c7}
 
-    .panel { background:#fff; padding:20px; border-radius:15px; box-shadow:0 3px 8px rgba(0,0,0,.1); }
-    label { display:block; margin-top:10px; font-size:14px; }
-    input { width:100%; padding:10px; margin-top:6px; border:1px solid #ccc; border-radius:10px; }
-    .btn { background:var(--brand); color:#fff; padding:12px; border:none; border-radius:10px; margin-top:15px; width:100%; font-size:16px; }
-    .link { background:none; color:var(--brand); border:none; margin-top:10px; width:100%; text-align:center; }
+  /* Loss bar */
+  .bar{height:12px;border-radius:999px;background:#1a1f25;border:1px solid #2a2f36;overflow:hidden}
+  .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00e676,#ffb300,#ff1744)}
 
-    .balance-card { background:#fff; padding:20px; border-radius:15px; box-shadow:0 3px 8px rgba(0,0,0,.1); text-align:center; }
-    .stars { font-size:24px; color:#ccc; }
-    .stars .filled { color:gold; }
+  /* Tabs */
+  .tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .tab{padding:8px 12px;border-radius:10px;border:1px solid var(--edge);background:#121419;cursor:pointer}
+  .tab.active{border-color:#2d9b78;background:#0f1714}
 
-    ul { padding-left:18px; }
-    li { margin:6px 0; }
-    .muted { color:#666; font-size:12px; }
-  </style>
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:999}
+  .sheet{width:100%;max-width:640px;background:var(--panel);border-top-left-radius:18px;border-top-right-radius:18px;border:1px solid var(--edge);padding:16px}
+  .sheet h3{margin:0 0 10px}
+  .grid2{display:grid;gap:10px}
+  @media(min-width:560px){.grid2{grid-template-columns:1fr 1fr}}
+  label{font-size:.88rem;color:#cfd7e0}
+  input,select,textarea{
+    width:100%;padding:12px;border-radius:12px;border:1px solid #27303a;background:#0f1216;color:var(--text);
+    font-size:1rem
+  }
+
+  /* Lock */
+  .lock{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#08090b,#0d0f13);z-index:900}
+  .lock .panel{width:92%;max-width:420px;background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:20px;text-align:center}
+  .pin{letter-spacing:4px;text-align:center}
+
+  .note{font-size:.85rem;color:var(--muted)}
+  .small{font-size:.9rem}
+  canvas{max-height:260px}
+</style>
 </head>
 <body>
-<header>Quiet Cash</header>
 
-<!-- Auth -->
-<div id="auth" class="content active">
+<!-- Splash -->
+<div class="splash">KAYIZZI’S 🧠</div>
+
+<!-- Lock Screen -->
+<div id="lock" class="lock">
   <div class="panel">
-    <h3 id="authTitle">Login</h3>
-    <label>Email</label><input id="email" inputmode="email" autocomplete="email" />
-    <label>Password</label><input id="pass" type="password" autocomplete="current-password" />
-    <button class="btn" id="authActionBtn" onclick="doLogin()">Login</button>
-    <button class="link" onclick="toggleAuth()">No account? Create one</button>
-    <p class="muted">Your data is stored securely per account.</p>
+    <h2>🔒 Enter Password</h2>
+    <p class="note" id="lockNote">Tip: set a password in Settings.</p>
+    <input id="lockPin" class="pin" placeholder="••••" maxlength="12" type="password"/>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="unlockBtn">Unlock</button>
+      <button class="btn ghost" id="forgotBtn">Forgot?</button>
+    </div>
   </div>
 </div>
 
-<!-- Home -->
-<div id="home" class="content">
+<!-- App -->
+<div class="app" id="app">
+  <header>
+    <div class="title">💰 Quiet Cash</div>
+    <div class="actions">
+      <button class="btn" id="btnAdd">➕ Add</button>
+      <button class="btn" id="btnHistory">📋 History</button>
+      <button class="btn" id="btnReports">📊 Reports</button>
+      <button class="btn" id="btnExport">📂 Export</button>
+      <button class="btn danger" id="btnClear">🗑 Clear</button>
+      <button class="btn ghost" id="btnLock">🔒 Lock</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
   <div class="grid">
-    <div class="card" onclick="addTransaction('in')">Cash In</div>
-    <div class="card" onclick="addTransaction('out')">Cash Out</div>
-    <div class="card" onclick="showHistory()">History</div>
-    <div class="card" onclick="switchTab('reports')">Reports</div>
-    <div class="card" onclick="switchTab('balance')">Loss Check</div>
+    <div class="card">
+      <h3>Current Balance</h3>
+      <div class="metric"><span id="balance">UGX 0</span></div>
+      <div class="row small muted" style="margin-top:8px">
+        <div>Cash In: <b id="sumIn">UGX 0</b></div>
+        <div>Cash Out: <b id="sumOut">UGX 0</b></div>
+        <div>Net Cash: <b id="sumNet">UGX 0</b></div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="row small" style="justify-content:space-between">
+          <span>Loss Check</span><span id="lossLabel" class="muted">OK</span>
+        </div>
+        <div class="bar"><span id="lossBar"></span></div>
+        <p class="note" style="margin-top:8px">Loss intensity compares this month’s expenses vs income. Green is safe, red is risk.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Today’s Transactions</h3>
+      <div class="list" id="todayList"></div>
+      <p class="note" id="noToday">No transactions today.</p>
+    </div>
+
+    <div class="card">
+      <h3>Weekly Cash Flow (Last 7 Days)</h3>
+      <canvas id="weeklyChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Top 3 Days This Month</h3>
+      <div class="list" id="top3"></div>
+      <p class="note" id="noTop">No data this month yet.</p>
+    </div>
   </div>
-  <div id="historyList" style="margin-top:20px;"></div>
+
+  <!-- HISTORY -->
+  <div class="card" style="margin-top:14px">
+    <h3>History</h3>
+    <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+      <input id="search" placeholder="Search reason or date…"/>
+      <select id="filterType">
+        <option value="">All</option>
+        <option value="in">Cash In</option>
+        <option value="out">Cash Out</option>
+      </select>
+    </div>
+    <div class="list" id="historyList"></div>
+    <p class="note" id="noHistory">Nothing here yet. Add your first transaction.</p>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="card" style="margin-top:14px">
+    <h3>Reports</h3>
+    <div class="tabs">
+      <button class="tab active" data-range="daily">Daily</button>
+      <button class="tab" data-range="weekly">Weekly</button>
+      <button class="tab" data-range="monthly">Monthly</button>
+    </div>
+    <div style="margin-top:10px">
+      <canvas id="reportChart"></canvas>
+    </div>
+    <p class="note">Pie chart groups by <b>reason</b>. Green = income, Red = expense.</p>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card" style="margin-top:14px">
+    <h3>Settings</h3>
+    <div class="row">
+      <button class="btn" id="btnChangePin">Change Password</button>
+      <button class="btn warn" id="btnPremium">Upgrade – $1 / UGX</button>
+      <button class="btn ghost" id="btnAbout">About</button>
+    </div>
+    <p class="note" id="premiumNote">Premium unlock placeholder (Stripe/Play Billing later).</p>
+  </div>
 </div>
 
-<!-- Reports -->
-<div id="reports" class="content">
-  <div class="panel" style="margin-bottom:12px">
-    <strong>Summary</strong>
-    <div id="summary" class="muted"></div>
+<!-- ADD TRANSACTION MODAL -->
+<div class="modal" id="txModal">
+  <div class="sheet">
+    <h3>Add Transaction</h3>
+    <div class="grid2">
+      <div>
+        <label>Type</label>
+        <select id="txType">
+          <option value="in">Cash In</option>
+          <option value="out">Cash Out</option>
+        </select>
+      </div>
+      <div>
+        <label>Amount (UGX)</label>
+        <input id="txAmount" type="number" inputmode="numeric" placeholder="e.g. 5000"/>
+      </div>
+      <div style="grid-column:1/-1">
+        <label>Reason</label>
+        <input id="txReason" placeholder="e.g. transport, food, salary…"/>
+      </div>
+      <div>
+        <label>Date</label>
+        <input id="txDate" type="date"/>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="txSave">Save</button>
+      <button class="btn ghost" id="txClose">Close</button>
+    </div>
   </div>
-  <canvas id="reportChart"></canvas>
-</div>
-
-<!-- Balance -->
-<div id="balance" class="content">
-  <div class="balance-card">
-    <h2 id="balValue">Balance: UGX 0</h2>
-    <h3 id="lossValue">Loss: UGX 0</h3>
-    <div class="stars" id="ratingStars">★★★★★</div>
-  </div>
-</div>
-
-<!-- Bottom Nav (hidden until logged in) -->
-<div class="nav" id="bottomNav" style="display:none;">
-  <button id="tabHome" class="activeTab" onclick="switchTab('home')">Home</button>
-  <button id="tabReports" onclick="switchTab('reports')">Reports</button>
-  <button id="tabBalance" onclick="switchTab('balance')">Balance</button>
-  <button onclick="logout()">Logout</button>
 </div>
 
 <script>
-  // ---- Firebase config (yours) ----
-  const firebaseConfig = {
-    apiKey: "AIzaSyCsrGLLl5_ihXNhpwpQC2iF4p2a7S0GULQ",
-    authDomain: "quiet-cash.firebaseapp.com",
-    projectId: "quiet-cash",
-    storageBucket: "quiet-cash.firebasestorage.app",
-    messagingSenderId: "976905194023",
-    appId: "1:976905194023:web:35c67cbc71b37cc1609c02",
-    measurementId: "G-L4MT65TZ1Z"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+/* -------------------- Storage & State -------------------- */
+const store = {
+  get(){ return JSON.parse(localStorage.getItem('qc_data')||'{"tx":[],"premium":false,"pin":null}') },
+  set(d){ localStorage.setItem('qc_data', JSON.stringify(d)) }
+};
+let data = store.get();
 
-  // ---- UI helpers ----
-  function switchTab(tab){
-    document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('activeTab'));
-    const tabBtn = document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));
-    if(tabBtn) tabBtn.classList.add('activeTab');
-    if(tab==="reports") renderChart();
-    if(tab==="balance") updateBalance();
+/* -------------------- Helpers -------------------- */
+const UGX = n => 'UGX ' + (Number(n)||0).toLocaleString('en-UG');
+const todayISO = () => new Date().toISOString().slice(0,10);
+const parseDate = d => new Date(d+'T00:00:00');
+const fmtDateTime = ts => new Date(ts).toLocaleString();
+
+/* -------------------- Lock Screen -------------------- */
+const splashEl = document.querySelector('.splash');
+const appEl = document.getElementById('app');
+const lockEl = document.getElementById('lock');
+const lockPin = document.getElementById('lockPin');
+const unlockBtn = document.getElementById('unlockBtn');
+const forgotBtn = document.getElementById('forgotBtn');
+const lockNote = document.getElementById('lockNote');
+
+setTimeout(()=>{ // after splash
+  splashEl.style.display='none';
+  if(data.pin){ lockNote.textContent='Enter your password to access Quiet Cash.'; lockEl.style.display='flex'; }
+  else { appEl.style.display='block'; }
+}, 4000);
+
+unlockBtn.onclick = () => {
+  const pin = lockPin.value.trim();
+  if(!pin){ alert('Enter password'); return; }
+  if(pin === data.pin){ lockEl.style.display='none'; appEl.style.display='block'; lockPin.value=''; }
+  else alert('Wrong password');
+};
+forgotBtn.onclick = ()=> alert('Password reset not available offline.\nUse your current password or Clear Data (will require password).');
+
+/* -------------------- Elements -------------------- */
+const balanceEl = document.getElementById('balance');
+const sumInEl = document.getElementById('sumIn');
+const sumOutEl = document.getElementById('sumOut');
+const sumNetEl = document.getElementById('sumNet');
+const lossBar = document.getElementById('lossBar');
+const lossLabel = document.getElementById('lossLabel');
+const todayList = document.getElementById('todayList');
+const noToday = document.getElementById('noToday');
+const top3El = document.getElementById('top3');
+const noTop = document.getElementById('noTop');
+const historyList = document.getElementById('historyList');
+const noHistory = document.getElementById('noHistory');
+const searchEl = document.getElementById('search');
+const filterTypeEl = document.getElementById('filterType');
+
+/* Buttons */
+document.getElementById('btnAdd').onclick = ()=> openTxModal();
+document.getElementById('btnHistory').onclick = ()=> window.scrollTo({top:document.body.scrollHeight/3, behavior:'smooth'});
+document.getElementById('btnReports').onclick = ()=> document.getElementById('reportChart').scrollIntoView({behavior:'smooth'});
+document.getElementById('btnExport').onclick = ()=> exportMenu();
+document.getElementById('btnClear').onclick = ()=> clearAll();
+document.getElementById('btnLock').onclick = ()=> { lockEl.style.display='flex'; };
+document.getElementById('btnChangePin').onclick = ()=> changePin();
+document.getElementById('btnPremium').onclick = ()=> upgradePremium();
+document.getElementById('btnAbout').onclick = ()=> alert('Quiet Cash\nVersion 1.0\nOffline-first money tracker.');
+
+searchEl.oninput = renderHistory;
+filterTypeEl.onchange = renderHistory;
+
+/* Modal */
+const txModal = document.getElementById('txModal');
+const txType = document.getElementById('txType');
+const txAmount = document.getElementById('txAmount');
+const txReason = document.getElementById('txReason');
+const txDate = document.getElementById('txDate');
+document.getElementById('txClose').onclick = ()=> txModal.style.display='none';
+document.getElementById('txSave').onclick = saveTx;
+window.addEventListener('click', e=>{ if(e.target===txModal) txModal.style.display='none'; });
+
+function openTxModal(){
+  txType.value='in'; txAmount.value=''; txReason.value=''; txDate.value=todayISO();
+  txModal.style.display='flex';
+}
+
+/* -------------------- Data Ops -------------------- */
+function addTx(entry){
+  data.tx.push(entry);
+  store.set(data);
+}
+
+function delTx(id){
+  data.tx = data.tx.filter(t=> t.id!==id);
+  store.set(data);
+}
+
+/* -------------------- Save Tx -------------------- */
+function saveTx(){
+  const type = txType.value;
+  const amount = Number(txAmount.value);
+  const reason = txReason.value.trim();
+  const date = txDate.value || todayISO();
+
+  if(!amount || amount<=0){ alert('Enter a valid amount'); return; }
+  if(!reason){ alert('Enter a reason'); return; }
+
+  const signedAmount = type==='in' ? amount : -amount;
+  addTx({ id:cryptoRandom(), type, amount:signedAmount, reason, date, ts: Date.now() });
+  txModal.style.display='none';
+  renderAll();
+}
+
+/* -------------------- Rendering -------------------- */
+function renderAll(){
+  renderSummary();
+  renderToday();
+  renderTop3();
+  renderHistory();
+  renderWeeklyChart();
+  renderReportChart(currentRange);
+}
+
+function renderSummary(){
+  const sumIn = data.tx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const sumOut = Math.abs(data.tx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  const net = sumIn - sumOut;
+  balanceEl.textContent = UGX(net);
+  sumInEl.textContent = UGX(sumIn);
+  sumOutEl.textContent = UGX(sumOut);
+  sumNetEl.textContent = UGX(net);
+
+  // Loss check: ratio expense/income current month
+  const m = new Date().toISOString().slice(0,7); // YYYY-MM
+  const monthTx = data.tx.filter(t=> (t.date||'').startsWith(m));
+  const mIn = monthTx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const mOut = Math.abs(monthTx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  const ratio = mIn>0 ? Math.min(1, mOut/mIn) : (mOut>0 ? 1 : 0);
+  const pct = Math.round(ratio*100);
+  lossBar.style.width = pct + '%';
+  let label = 'OK';
+  if (ratio < .4) { label='Safe'; lossLabel.style.color='#9effc9'; }
+  else if (ratio < .75) { label='Watch'; lossLabel.style.color='#ffe9b3'; }
+  else { label='Risk'; lossLabel.style.color='#ffc7c7'; }
+  lossLabel.textContent = `${label} • ${pct}%`;
+}
+
+function renderToday(){
+  const iso = todayISO();
+  const list = data.tx.filter(t=>t.date===iso).sort((a,b)=>b.ts-a.ts);
+  todayList.innerHTML='';
+  if(!list.length){ noToday.style.display='block'; return; }
+  noToday.style.display='none';
+  list.forEach(t=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div>
+        <div>${t.amount>0?'⬆️':'⬇️'} <b>${UGX(Math.abs(t.amount))}</b> — ${escapeHTML(t.reason)}</div>
+        <div class="meta">${t.date}</div>
+      </div>
+      <span class="badge ${t.amount>0?'in':'out'}">${t.amount>0?'IN':'OUT'}</span>
+    `;
+    todayList.appendChild(el);
+  });
+}
+
+function renderTop3(){
+  const ym = new Date().toISOString().slice(0,7);
+  const map = {};
+  data.tx.filter(t=>(t.date||'').startsWith(ym)).forEach(t=>{
+    map[t.date] = (map[t.date]||0) + t.amount;
+  });
+  const arr = Object.entries(map).map(([d,v])=>({date:d,net:v}))
+              .sort((a,b)=>Math.abs(b.net)-Math.abs(a.net)).slice(0,3);
+  top3El.innerHTML='';
+  if(!arr.length){ noTop.style.display='block'; return; }
+  noTop.style.display='none';
+  arr.forEach(d=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div><b>${d.date}</b> — Net: <b>${UGX(d.net)}</b></div>
+      <span class="badge ${d.net>=0?'in':'out'}">${d.net>=0?'NET+' :'NET-'}</span>
+    `;
+    top3El.appendChild(el);
+  });
+}
+
+function renderHistory(){
+  const q = (searchEl.value||'').toLowerCase();
+  const f = filterTypeEl.value;
+  const list = data.tx
+    .filter(t => (!f || (f==='in'?t.amount>0:t.amount<0)))
+    .filter(t => !q || (t.reason.toLowerCase().includes(q) || (t.date||'').includes(q)))
+    .sort((a,b)=>b.ts-a.ts);
+
+  historyList.innerHTML='';
+  if(!list.length){ noHistory.style.display='block'; return; }
+  noHistory.style.display='none';
+
+  list.forEach(t=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div>
+        <div>${t.amount>0?'⬆️':'⬇️'} <b>${UGX(Math.abs(t.amount))}</b> — ${escapeHTML(t.reason)}</div>
+        <div class="meta">${t.date} • ${fmtDateTime(t.ts)}</div>
+      </div>
+      <div class="row">
+        <span class="badge ${t.amount>0?'in':'out'}">${t.amount>0?'IN':'OUT'}</span>
+        <button class="btn danger small" data-del="${t.id}">Delete</button>
+      </div>
+    `;
+    historyList.appendChild(el);
+  });
+
+  // Bind deletes
+  historyList.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(confirm('Delete this transaction?')){ delTx(btn.getAttribute('data-del')); renderAll(); }
+    }
+  });
+}
+
+/* -------------------- Weekly Chart -------------------- */
+let weeklyChart;
+function renderWeeklyChart(){
+  const labels=[]; const vals=[];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const iso = d.toISOString().slice(0,10);
+    labels.push(iso.slice(5)); // MM-DD
+    const sum = data.tx.filter(t=>t.date===iso).reduce((a,b)=>a+b.amount,0);
+    vals.push(sum);
   }
+  const ctx = document.getElementById('weeklyChart').getContext('2d');
+  if(weeklyChart) weeklyChart.destroy();
+  weeklyChart = new Chart(ctx,{
+    type:'bar',
+    data:{ labels, datasets:[{label:'Net UGX', data:vals}]},
+    options:{ scales:{ y:{ beginAtZero:true } } }
+  });
+}
 
-  let signupMode = false;
-  function toggleAuth(){
-    signupMode = !signupMode;
-    document.getElementById('authTitle').innerText = signupMode ? 'Create Account' : 'Login';
-    document.getElementById('authActionBtn').innerText = signupMode ? 'Create Account' : 'Login';
+/* -------------------- Reports Pie by Reason -------------------- */
+let pieChart;
+let currentRange = 'daily';
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentRange = tab.dataset.range;
+    renderReportChart(currentRange);
   }
+});
 
-  function toast(msg){ alert(msg); }
+function groupByReason(range){
+  const now = new Date();
+  const start = new Date();
+  if(range==='daily'){ start.setHours(0,0,0,0); }
+  if(range==='weekly'){ const day=now.getDay(); start.setDate(now.getDate()-((day+6)%7)); start.setHours(0,0,0,0); } // Monday-start
+  if(range==='monthly'){ start.setDate(1); start.setHours(0,0,0,0); }
 
-  // ---- Auth actions ----
-  function doLogin(){
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('pass').value;
-    if(!email || !pass) return toast("Enter email and password");
-    auth.signInWithEmailAndPassword(email, pass).catch(e=>toast(e.message));
-  }
-  function doSignup(){
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('pass').value;
-    if(!email || !pass) return toast("Enter email and password");
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then(()=>toast("Account created. You are now signed in."))
-      .catch(e=>toast(e.message));
-  }
-  // Wire the same button to login or signup depending on mode
-  document.getElementById('authActionBtn').onclick = ()=> signupMode ? doSignup() : doLogin();
-
-  function logout(){ auth.signOut(); }
-
-  // ---- App state ----
-  let transactions = [];
-  let chart;
-
-  auth.onAuthStateChanged(async (user)=>{
-    if(user){
-      document.getElementById('bottomNav').style.display = 'flex';
-      switchTab('home');
-      await loadTransactions();
-    }else{
-      document.getElementById('bottomNav').style.display = 'none';
-      switchTab('auth');
+  const mapIn = {}, mapOut = {};
+  data.tx.forEach(t=>{
+    const tDate = parseDate(t.date||todayISO());
+    if(tDate>=start && tDate<=now){
+      const key = t.reason || (t.amount>0?'Income':'Expense');
+      if(t.amount>0) mapIn[key]=(mapIn[key]||0)+t.amount;
+      else mapOut[key]=(mapOut[key]||0)+Math.abs(t.amount);
     }
   });
 
-  // ---- Data actions ----
-  async function addTransaction(type){
-    const amtStr = prompt("Enter amount:");
-    if(!amtStr) return;
-    const amount = +amtStr;
-    if(isNaN(amount) || amount<=0) return toast("Enter a valid amount");
-    const t = { type, amount, date: Date.now() };
-    const uid = auth.currentUser.uid;
-    await db.collection("users").doc(uid).collection("transactions").add(t);
-    toast("Transaction saved!");
-    await loadTransactions();
-  }
+  const labels = [...new Set([...Object.keys(mapIn),...Object.keys(mapOut)])];
+  const inVals = labels.map(k=> mapIn[k]||0);
+  const outVals = labels.map(k=> mapOut[k]||0);
+  return {labels,inVals,outVals};
+}
 
-  async function loadTransactions(){
-    const uid = auth.currentUser.uid;
-    const snap = await db.collection("users").doc(uid).collection("transactions")
-                  .orderBy("date","desc").get();
-    transactions = snap.docs.map(d=>d.data());
-    showHistory();
-    updateBalance();
-    updateSummary();
-  }
-
-  function showHistory(){
-    let html = "<h3>History</h3><ul>";
-    transactions.forEach(t=>{
-      const d = new Date(t.date).toLocaleString();
-      html += `<li>${t.type==="in"?"➕":"➖"} ${t.amount} <span class="muted">(${d})</span></li>`;
-    });
-    html += "</ul>";
-    document.getElementById("historyList").innerHTML = html;
-  }
-
-  function computeTotals(){
-    const inflow = transactions.filter(t=>t.type==="in").reduce((a,b)=>a+b.amount,0);
-    const outflow = transactions.filter(t=>t.type==="out").reduce((a,b)=>a+b.amount,0);
-    return { inflow, outflow, net: inflow - outflow };
-  }
-
-  function updateSummary(){
-    const { inflow, outflow, net } = computeTotals();
-    document.getElementById('summary').innerText =
-      `In: UGX ${inflow}  •  Out: UGX ${outflow}  •  Net: UGX ${net}`;
-  }
-
-  function renderChart(){
-    const { inflow, outflow, net } = computeTotals();
-    const ctx = document.getElementById("reportChart");
-    if(chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        labels:["Inflow","Outflow","Net Balance"],
-        datasets:[{ data:[inflow,outflow,net], backgroundColor:["#4caf50","#f44336","#2196f3"] }]
+function renderReportChart(range){
+  const {labels,inVals,outVals} = groupByReason(range);
+  const ctx = document.getElementById('reportChart').getContext('2d');
+  if(pieChart) pieChart.destroy();
+  pieChart = new Chart(ctx,{
+    type:'pie',
+    data:{
+      labels,
+      datasets:[
+        {label:'Cash In', data:inVals },
+        {label:'Cash Out', data:outVals }
+      ]
+    },
+    options:{
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:'#cfd7e0' } }
       }
-    });
-  }
+    }
+  });
+}
 
-  function updateBalance(){
-    const { inflow, outflow, net } = computeTotals();
-    const loss = Math.max(0, outflow - inflow);
-    document.getElementById("balValue").innerText = "Balance: UGX " + net;
-    document.getElementById("lossValue").innerText = "Loss: UGX " + loss;
+/* -------------------- Export -------------------- */
+function exportMenu(){
+  const pick = prompt('Export: type "csv" or "pdf"');
+  if(!pick) return;
+  if(pick.toLowerCase()==='csv') exportCSV();
+  else if(pick.toLowerCase()==='pdf') exportPDF();
+  else alert('Unknown option.');
+}
 
-    const starsCount = Math.max(1, Math.min(5, 5 - Math.floor(loss / (Math.abs(net)+1) * 5)));
-    let html = "";
-    for(let i=1;i<=5;i++) html += `<span class="${i<=starsCount?"filled":""}">★</span>`;
-    document.getElementById("ratingStars").innerHTML = html;
+function exportCSV(){
+  let csv = 'Type,Amount,Reason,Date,CreatedAt\n';
+  data.tx.forEach(t=>{
+    csv += `${t.amount>0?'IN':'OUT'},${Math.abs(t.amount)},${safeCSV(t.reason)},${t.date},${fmtDateTime(t.ts)}\n`;
+  });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='QuietCash.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('Quiet Cash – Export', 40, 44);
+  doc.setFont('helvetica',''); doc.setFontSize(10);
+  doc.text('Date: '+ new Date().toLocaleString(), 40, 62);
+
+  let y=90;
+  doc.setFont('helvetica','bold'); doc.text('Summary',40,y);
+  y+=16; doc.setFont('helvetica','');
+  const sumIn = data.tx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const sumOut = Math.abs(data.tx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  doc.text(`Cash In: ${sumIn.toLocaleString()}`,40,y); y+=14;
+  doc.text(`Cash Out: ${sumOut.toLocaleString()}`,40,y); y+=14;
+  doc.text(`Net: ${(sumIn-sumOut).toLocaleString()}`,40,y); y+=24;
+
+  doc.setFont('helvetica','bold'); doc.text('Transactions',40,y); y+=16; doc.setFont('helvetica','');
+  const rows = data.tx.sort((a,b)=>b.ts-a.ts).slice(0,60); // first 60 rows
+  rows.forEach(t=>{
+    const line = `${t.amount>0?'IN':'OUT'}  UGX ${Math.abs(t.amount).toLocaleString()}  — ${t.reason}  •  ${t.date}`;
+    doc.text(line, 40, y); y+=14; if(y>760){ doc.addPage(); y=60; }
+  });
+
+  doc.save('QuietCash.pdf');
+}
+
+/* -------------------- Clear Data -------------------- */
+function clearAll(){
+  if(!confirm('This will delete ALL data. Continue?')) return;
+  if(data.pin){
+    const p = prompt('Enter password to confirm:');
+    if(p!==data.pin){ alert('Wrong password.'); return; }
   }
+  data = { tx:[], premium:false, pin:data.pin||null };
+  store.set(data);
+  renderAll();
+  alert('All transactions cleared.');
+}
+
+/* -------------------- Change & Set Password -------------------- */
+function changePin(){
+  const old = data.pin ? prompt('Enter current password:') : null;
+  if(data.pin && old!==data.pin){ alert('Wrong password'); return; }
+  const np = prompt('Set new password (leave empty to remove):') || '';
+  data.pin = np.trim() || null;
+  store.set(data);
+  alert(data.pin ? 'Password updated.' : 'Password removed.');
+}
+
+function upgradePremium(){
+  alert('Premium costs $1 / UGX (placeholder).\nYou can enable Premium features after payment integration.\nFor now this toggles a local flag.');
+  data.premium = !data.premium;
+  store.set(data);
+  document.getElementById('premiumNote').textContent = data.premium ? 'Premium: ON' : 'Premium unlock placeholder (Stripe/Play Billing later).';
+}
+
+/* -------------------- Utilities -------------------- */
+function cryptoRandom(){
+  // Short id
+  return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+}
+function escapeHTML(s){ return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) }
+function safeCSV(s){ return `"${(s||'').replace(/"/g,'""')}"` }
+
+/* -------------------- Init -------------------- */
+renderAll();
 </script>
 </body>
 </html>
