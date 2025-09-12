@@ -131,14 +131,18 @@
 
   <!-- DASHBOARD -->
   <div class="grid">
+    <!-- PATCHED Current Balance card: kept original overall balance elements + added weekly/monthly breakdown -->
     <div class="card">
       <h3>Current Balance</h3>
+
+      <!-- Original overall metric kept for compatibility -->
       <div class="metric"><span id="balance">UGX 0</span></div>
       <div class="row small muted" style="margin-top:8px">
         <div>Cash In: <b id="sumIn">UGX 0</b></div>
         <div>Cash Out: <b id="sumOut">UGX 0</b></div>
         <div>Net Cash: <b id="sumNet">UGX 0</b></div>
       </div>
+
       <div style="margin-top:12px">
         <div class="row small" style="justify-content:space-between">
           <span>Loss Check</span><span id="lossLabel" class="muted">OK</span>
@@ -146,7 +150,33 @@
         <div class="bar"><span id="lossBar"></span></div>
         <p class="note" style="margin-top:8px">Loss intensity compares this month’s expenses vs income. Green is safe, red is risk.</p>
       </div>
+
+      <hr style="border:none;border-top:1px solid #1e2329;margin:12px 0">
+
+      <!-- NEW: Weekly / Last Week / Monthly breakdown -->
+      <div class="small muted" style="margin-bottom:8px">Balances</div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div class="muted">This Week (Mon–Today)</div>
+          <div style="font-weight:800;margin-top:6px" id="thisWeekBalance">UGX 0</div>
+          <div class="small muted">In: <span id="thisWeekIn">UGX 0</span> • Out: <span id="thisWeekOut">UGX 0</span></div>
+        </div>
+
+        <div style="flex:1;min-width:160px">
+          <div class="muted">Last Week (Mon–Sun)</div>
+          <div style="font-weight:800;margin-top:6px" id="lastWeekBalance">UGX 0</div>
+          <div class="small muted">In: <span id="lastWeekIn">UGX 0</span> • Out: <span id="lastWeekOut">UGX 0</span></div>
+        </div>
+
+        <div style="flex:1;min-width:160px">
+          <div class="muted">This Month</div>
+          <div style="font-weight:800;margin-top:6px" id="thisMonthBalance">UGX 0</div>
+          <div class="small muted">In: <span id="thisMonthIn">UGX 0</span> • Out: <span id="thisMonthOut">UGX 0</span></div>
+        </div>
+      </div>
     </div>
+    <!-- END PATCH -->
 
     <div class="card">
       <h3>Today’s Transactions</h3>
@@ -356,6 +386,8 @@ function renderAll(){
   renderHistory();
   renderWeeklyChart();
   renderReportChart(currentRange);
+  // keep weekly/monthly balances updated
+  calculateBalances(data.tx);
 }
 
 function renderSummary(){
@@ -620,6 +652,64 @@ function cryptoRandom(){
 }
 function escapeHTML(s){ return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) }
 function safeCSV(s){ return `"${(s||'').replace(/"/g,'""')}"` }
+
+/* -------------------- New: Calculate weekly / last week / month balances -------------------- */
+function calculateBalances(transactions){
+  const today = new Date();
+
+  function getMonday(d){
+    d = new Date(d);
+    const day = d.getDay(); // 0 = Sunday, 1 = Monday
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+
+  const thisMonday = getMonday(today);
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+  const lastSunday = new Date(thisMonday);
+  lastSunday.setDate(thisMonday.getDate() - 1);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  let thisWeekIn = 0, thisWeekOut = 0;
+  let lastWeekIn = 0, lastWeekOut = 0;
+  let thisMonthIn = 0, thisMonthOut = 0;
+
+  (transactions||[]).forEach(t=>{
+    // t.date is YYYY-MM-DD
+    const tDate = parseDate(t.date||todayISO());
+    const amt = Number(t.amount) || 0;
+
+    if(tDate >= thisMonday && tDate <= today){
+      if(t.amount > 0) thisWeekIn += amt;
+      else thisWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= lastMonday && tDate <= lastSunday){
+      if(t.amount > 0) lastWeekIn += amt;
+      else lastWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= monthStart && tDate <= today){
+      if(t.amount > 0) thisMonthIn += amt;
+      else thisMonthOut += Math.abs(amt);
+    }
+  });
+
+  // update DOM (safe even if elements missing)
+  const safeSet = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  safeSet('thisWeekIn', UGX(thisWeekIn));
+  safeSet('thisWeekOut', UGX(thisWeekOut));
+  safeSet('thisWeekBalance', UGX(thisWeekIn - thisWeekOut));
+
+  safeSet('lastWeekIn', UGX(lastWeekIn));
+  safeSet('lastWeekOut', UGX(lastWeekOut));
+  safeSet('lastWeekBalance', UGX(lastWeekIn - lastWeekOut));
+
+  safeSet('thisMonthIn', UGX(thisMonthIn));
+  safeSet('thisMonthOut', UGX(thisMonthOut));
+  safeSet('thisMonthBalance', UGX(thisMonthIn - thisMonthOut));
+}
 
 /* -------------------- Init -------------------- */
 renderAll();
