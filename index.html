@@ -124,6 +124,7 @@
       <button class="btn" id="btnHistory">📋 History</button>
       <button class="btn" id="btnReports">📊 Reports</button>
       <button class="btn" id="btnExport">📂 Export</button>
+      <button class="btn primary" onclick="window.location.href='savings.html'">💡 Savings</button>
       <button class="btn danger" id="btnClear">🗑 Clear</button>
       <button class="btn ghost" id="btnLock">🔒 Lock</button>
     </div>
@@ -694,6 +695,9 @@ function calculateBalances(transactions){
       if(t.amount > 0) thisMonthIn += amt;
       else thisMonthOut += Math.abs(amt);
     }
+    if(localStorage.getItem("oldKey")){
+    localStorage.setItem("newKey", localStorage.getItem("oldKey"));
+}
   });
 
   // update DOM (safe even if elements missing)
@@ -715,4 +719,4 @@ function calculateBalances(transactions){
 renderAll();
 </script>
 </body>
-</html>
+</html> 
