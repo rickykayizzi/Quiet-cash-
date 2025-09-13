@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiet Cash — Saving Target Tracker</title>
+  <meta name="theme-color" content="#000000" />
+  <style>
+    :root{--bg:#071025;--card:#0b1320;--accent:#16a34a;--muted:#9aa4b2;--glass:rgba(255,255,255,0.03)}
+    body{margin:0;background:var(--bg);color:var(--muted);font-family:Inter,system-ui,sans-serif;padding:12px}
+    h2{margin-top:0;color:var(--accent)}
+    .wrap{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+    label{font-size:13px;color:var(--muted)}
+    input,select{width:100%;padding:8px;margin:4px 0;border-radius:6px;border:1px solid rgba(255,255,255,0.05);background:var(--glass);color:inherit}
+    button{padding:6px 10px;margin-top:6px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;transition:0.2s}
+    button:hover{opacity:0.9}
+    .progress-bar{height:14px;background:rgba(255,255,255,0.1);border-radius:12px;overflow:hidden;margin-bottom:6px}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#22c55e);color:#021;font-weight:700;text-align:center;font-size:12px;transition:width 0.4s ease}
+    .history{max-height:200px;overflow:auto;margin-top:8px;font-size:13px}
+    .summary{margin-top:8px;font-size:13px;color:#cbd5e1}
+    canvas{background:var(--glass);border-radius:8px;padding:6px}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <h1>Quiet Cash — Saving Tracker</h1>
+
+  <!-- Target Manager -->
+  <div class="card" style="margin-bottom:12px">
+    <h2>Targets</h2>
+    <select id="targetSelect"></select>
+    <button id="newTarget">+ New</button>
+    <button id="deleteTarget">🗑 Delete</button>
+  </div>
+
+  <div class="wrap">
+    <!-- Segment 1: Target Setup -->
+    <div class="card">
+      <h2>1. Target Setup</h2>
+      <label>Target Name</label>
+      <input id="targetName" placeholder="Laptop, Rent, etc." />
+      <label>Target Amount (UGX)</label>
+      <input id="targetAmount" type="number" />
+      <label>Deadline</label>
+      <input id="deadline" type="date" />
+      <label>Reason</label>
+      <input id="reason" />
+      <label>Auto Contribution</label>
+      <input id="autoAmount" type="number" placeholder="Amount" />
+      <select id="freq"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+      <label>Current Saved (UGX)</label>
+      <input id="currentSaved" type="number" />
+      <button id="saveTarget">Save Target</button>
+      <div class="summary" id="setupSummary"></div>
+    </div>
+
+    <!-- Segment 2: Progress & Insights -->
+    <div class="card">
+      <h2>2. Progress & Insights</h2>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill">0%</div></div>
+      <p id="progressLabel">UGX 0 saved</p>
+      <p id="deadlineInfo">Deadline: --</p>
+      <p id="insights">Insights will appear here.</p>
+      <p id="streak">Streak: 0 days</p>
+      <canvas id="progressChart" height="120"></canvas>
+      <h3>Simulator</h3>
+      <input id="simAmount" type="number" placeholder="amount" />
+      <select id="simFreq"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+      <button id="runSim">Run Simulation</button>
+      <p id="simResult"></p>
+    </div>
+
+    <!-- Segment 3: Contributions & History -->
+    <div class="card">
+      <h2>3. Contributions</h2>
+      <input id="contribAmount" type="number" placeholder="Amount" />
+      <input id="contribDate" type="date" />
+      <input id="contribNote" placeholder="Note" />
+      <button id="addContrib">Add</button>
+      <div>
+        Quick Add:
+        <button class="quickAdd" data-amt="5000">+5k</button>
+        <button class="quickAdd" data-amt="10000">+10k</button>
+        <button class="quickAdd" data-amt="50000">+50k</button>
+      </div>
+      <div class="history" id="historyList"></div>
+    </div>
+  </div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+let targets = JSON.parse(localStorage.getItem("targets")||"{}");
+let currentId = null;
+let chart;
+
+function saveAll(){ localStorage.setItem("targets", JSON.stringify(targets)); refreshTargetList(); }
+function refreshTargetList(){
+  $('targetSelect').innerHTML='';
+  Object.keys(targets).forEach(id=>{
+    const opt=document.createElement('option');
+    opt.value=id;
+    opt.textContent=targets[id].name || `Target ${id}`;
+    if(id===currentId) opt.selected=true;
+    $('targetSelect').appendChild(opt);
+  });
+}
+function loadTarget(id){
+  currentId=id;
+  const t=targets[id];
+  $('targetName').value=t.name||'';
+  $('targetAmount').value=t.amount||'';
+  $('currentSaved').value=t.current||0;
+  $('deadline').value=t.deadline||'';
+  $('reason').value=t.reason||'';
+  $('autoAmount').value=t.autoAmount||'';
+  $('freq').value=t.freq||'daily';
+  $('historyList').innerHTML='';
+  (t.history||[]).forEach(h=>{
+    const div=document.createElement('div');
+    div.textContent=h;
+    $('historyList').appendChild(div);
+  });
+  updateProgress();
+  updateSummary();
+  refreshTargetList();
+}
+function createNewTarget(){
+  const id=Date.now().toString();
+  targets[id]={name:'',amount:0,current:0,deadline:null,reason:'',autoAmount:0,freq:'daily',history:[],streak:0,lastDate:null};
+  saveAll(); loadTarget(id);
+}
+function deleteCurrentTarget(){
+  if(!currentId) return;
+  if(confirm("Delete this target?")){
+    delete targets[currentId];
+    saveAll();
+    const ids=Object.keys(targets);
+    ids.length?loadTarget(ids[0]):createNewTarget();
+  }
+}
+
+// Buttons
+$('saveTarget').onclick=()=>{
+  if(!currentId) createNewTarget();
+  const t=targets[currentId];
+  t.name=$('targetName').value.trim();
+  t.amount=+$('targetAmount').value||0;
+  t.current=+$('currentSaved').value||0;
+  t.deadline=$('deadline').value;
+  t.reason=$('reason').value.trim();
+  t.autoAmount=+$('autoAmount').value||0;
+  t.freq=$('freq').value;
+  saveAll(); updateProgress(); updateSummary();
+};
+$('addContrib').onclick=()=>addContribution(+$('contribAmount').value,$('contribNote').value,$('contribDate').value);
+document.querySelectorAll('.quickAdd').forEach(btn=>{
+  btn.onclick=()=>addContribution(+btn.dataset.amt,"Quick Add",new Date().toISOString().split('T')[0]);
+});
+
+function addContribution(amt,note,date){
+  if(!currentId||!amt) return;
+  const t=targets[currentId];
+  t.current+=amt;
+  date=date||new Date().toISOString().split('T')[0];
+  t.history=t.history||[];
+  t.history.unshift(`+UGX ${amt.toLocaleString()} on ${date} (${note||'No note'})`);
+
+  // streak tracking
+  if(t.lastDate===date){} 
+  else if(t.lastDate){
+    const diff=(new Date(date)-new Date(t.lastDate))/86400000;
+    t.streak = diff<=1? t.streak+1 : 1;
+  } else { t.streak=1; }
+  t.lastDate=date;
+
+  saveAll(); loadTarget(currentId);
+  $('contribAmount').value=$('contribNote').value=$('contribDate').value='';
+}
+
+$('runSim').onclick=()=>{
+  const amt=+$('simAmount').value||0, freq=$('simFreq').value;
+  if(!currentId||!targets[currentId].amount||!amt) return;
+  const t=targets[currentId], remaining=t.amount-t.current;
+  let perDay=0; if(freq==='daily') perDay=amt; if(freq==='weekly') perDay=amt/7; if(freq==='monthly') perDay=amt/30;
+  if(perDay<=0) return;
+  const days=Math.ceil(remaining/perDay), finish=new Date(); finish.setDate(finish.getDate()+days);
+  $('simResult').textContent=`With UGX ${amt.toLocaleString()} ${freq}, you'll finish in ${days} days (${finish.toDateString()}).`;
+};
+
+$('targetSelect').onchange=e=>loadTarget(e.target.value);
+$('newTarget').onclick=createNewTarget;
+$('deleteTarget').onclick=deleteCurrentTarget;
+
+// Boot
+if(Object.keys(targets).length){ loadTarget(Object.keys(targets)[0]); } else { createNewTarget(); }
+
+// Progress + summary
+function updateProgress(){
+  const t=targets[currentId];
+  const pct=t.amount?Math.min(100,(t.current/t.amount*100).toFixed(1)):0;
+  $('progressFill').style.width=pct+'%'; $('progressFill').textContent=pct+'%';
+  $('progressLabel').textContent=`UGX ${t.current.toLocaleString()} / ${t.amount.toLocaleString()}`;
+  $('deadlineInfo').textContent=t.deadline?`Deadline: ${t.deadline}`:'No deadline';
+  $('streak').textContent=`Streak: ${t.streak||0} days`;
+  if(t.deadline){
+    const daysLeft=Math.ceil((new Date(t.deadline)-new Date())/86400000);
+    $('insights').textContent = pct>=100?"Target reached! 🎉":`You need UGX ${(t.amount-t.current).toLocaleString()} more. ${daysLeft>0?`Save about UGX ${Math.ceil((t.amount-t.current)/daysLeft).toLocaleString()} per day to reach your goal.`:"Deadline passed."}`;
+  } else { $('insights').textContent = pct>=100?"Target reached! 🎉":`You need UGX ${(t.amount-t.current).toLocaleString()} more.`; }
+
+  // confetti at milestones
+  if([25,50,75,100].includes(Math.round(pct))) confetti({particleCount:100,spread:70,origin:{y:0.6}});
+  updateChart();
+}
+function updateSummary(){
+  const t=targets[currentId];
+  $('setupSummary').textContent = t.name?`Target: ${t.name} (${t.reason||'No reason'})`:"";
+}
+
+// Chart.js progress over time
+function updateChart(){
+  const ctx=$('progressChart').getContext('2d');
+  const t=targets[currentId];
+  const labels=(t.history||[]).map((_,i)=>i+1).reverse();
+  const data=(t.history||[]).map(h=>parseInt(h.replace(/\D/g,''))).reverse();
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Contributions',data,borderColor:'#16a34a',tension:0.3}]},options:{plugins:{legend:{display:false}}}});
+}
+</script>
+</body>
+</html>
