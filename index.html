@@ -269,18 +269,8 @@
 <input type="file" id="importFile" accept="application/json" class="hidden-file" />
 
 <script>
-/*
-  Quiet Cash — full single-file app.
-
-  Migration & recovery notes:
-  - When the app's domain/origin changes, browser localStorage from the old origin is NOT accessible.
-    That means automatic recovery across different domains is impossible from client-side code.
-  - This script attempts to find and migrate *legacy keys inside the current origin's localStorage*
-    (common names are checked). If you had stored under another key on this SAME origin, the app will
-    try to migrate it automatically.
-  - If your old data was on a different origin (e.g., github.io → custom domain), you'll need a backup
-    file (JSON) exported from the old site to restore. Use the Import button to load it.
-*/
+/* Quiet Cash — full single-file app.
+   (Your existing header/comments...) */
 
 /* -------------------- Storage & State -------------------- */
 
@@ -302,7 +292,55 @@ const LEGACY_KEYS = [
   'quiet-cash'
 ];
 
-/* store helper with migration attempt */
+/* -------------------- Analytics (GA4) -------------------- */
+/* Measurement ID provided */
+const ANALYTICS_ID = 'G-L4MT65TZ1Z';
+
+/* Minimal GA4 loader + event queue */
+(function initAnalytics(){
+  // load gtag script
+  if(!ANALYTICS_ID) return;
+  // create dataLayer if absent
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+
+  // configure gtag if not done
+  gtag('js', new Date());
+  gtag('config', ANALYTICS_ID, { 'send_page_view': true });
+
+  // inject script tag (non-blocking)
+  if(!document.querySelector('script[data-quietcash-gtag]')){
+    const s = document.createElement('script');
+    s.async = true;
+    s.setAttribute('data-quietcash-gtag','true');
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_ID}`;
+    document.head.appendChild(s);
+  }
+})();
+
+/* helper to send analytics safely (no-op if gtag missing) */
+function sendAnalytics(eventName, params){
+  try{
+    if(window.gtag){
+      window.gtag('event', eventName, params || {});
+    } else if(window.dataLayer){
+      window.dataLayer.push({ event: eventName, ...params });
+    }
+  }catch(e){
+    console.warn('Analytics send failed', e);
+  }
+}
+
+/* convenience: detect loan-like reason words */
+function isLoanReason(reason){
+  if(!reason) return false;
+  const r = reason.toLowerCase();
+  const loanWords = ['loan','borrow','lend','repay','repayment','advance','credit'];
+  return loanWords.some(w => r.includes(w));
+}
+
+/* -------------------- store helper with migration attempt -------------------- */
 const store = {
   get(){
     // Try primary key first
@@ -325,6 +363,8 @@ const store = {
             // Optionally keep the old key (no deletion). We'll also mark migration.
             console.info('QuietCash: migrated data from legacy key:', k);
             alert('Quiet Cash: found data stored under "'+k+'" — automatically migrated it into the app.');
+            // analytics: report migration (non-identifying)
+            sendAnalytics('data_migrated', { legacy_key: k, count: parsed.tx.length });
             return parsed;
           }
         }catch(e){ /* ignore parse errors */ }
@@ -360,16 +400,16 @@ const forgotBtn = document.getElementById('forgotBtn');
 const lockNote = document.getElementById('lockNote');
 
 setTimeout(()=>{ // after splash
-  splashEl.style.display='none';
-  if(data.pin){ lockNote.textContent='Enter your password to access Quiet Cash.'; lockEl.style.display='flex'; }
-  else { appEl.style.display='block'; }
+  if(splashEl) splashEl.style.display='none';
+  if(data.pin){ if(lockNote) lockNote.textContent='Enter your password to access Quiet Cash.'; if(lockEl) lockEl.style.display='flex'; }
+  else { if(appEl) appEl.style.display='block'; }
 }, 4000);
 
 if(unlockBtn){
   unlockBtn.onclick = () => {
     const pin = lockPin.value.trim();
     if(!pin){ alert('Enter password'); return; }
-    if(pin === data.pin){ lockEl.style.display='none'; appEl.style.display='block'; lockPin.value=''; }
+    if(pin === data.pin){ if(lockEl) lockEl.style.display='none'; if(appEl) appEl.style.display='block'; lockPin.value=''; }
     else alert('Wrong password');
   };
 }
@@ -412,7 +452,7 @@ const txType = document.getElementById('txType');
 const txAmount = document.getElementById('txAmount');
 const txReason = document.getElementById('txReason');
 const txDate = document.getElementById('txDate');
-if(document.getElementById('txClose')) document.getElementById('txClose').onclick = ()=> txModal.style.display='none';
+if(document.getElementById('txClose')) document.getElementById('txClose').onclick = ()=> { if(txModal) txModal.style.display='none'; };
 if(document.getElementById('txSave')) document.getElementById('txSave').onclick = saveTx;
 window.addEventListener('click', e=>{ if(e.target===txModal) txModal.style.display='none'; });
 
@@ -428,11 +468,38 @@ function openTxModal(){
 function addTx(entry){
   data.tx.push(entry);
   store.set(data);
+
+  // analytics: transaction added
+  sendAnalytics('transaction_saved', {
+    value: Math.abs(entry.amount),
+    transaction_type: entry.type || (entry.amount>0?'in':'out'),
+    reason: entry.reason || '',
+    date: entry.date || todayISO(),
+    loan: isLoanReason(entry.reason) ? 1 : 0
+  });
+
+  // If this looks like a loan, send specialized event
+  if(isLoanReason(entry.reason)){
+    sendAnalytics('loan_recorded', {
+      amount: Math.abs(entry.amount),
+      reason: entry.reason || '',
+      date: entry.date || todayISO()
+    });
+  }
 }
 
 function delTx(id){
+  const t = data.tx.find(tt=>tt.id===id);
   data.tx = data.tx.filter(t=> t.id!==id);
   store.set(data);
+
+  // analytics: transaction deleted
+  sendAnalytics('transaction_deleted', {
+    id,
+    value: t ? Math.abs(t.amount) : undefined,
+    transaction_type: t ? (t.amount>0?'in':'out') : undefined,
+    reason: t ? t.reason : undefined
+  });
 }
 
 /* -------------------- Save Tx -------------------- */
@@ -449,6 +516,9 @@ function saveTx(){
   addTx({ id:cryptoRandom(), type, amount:signedAmount, reason, date, ts: Date.now() });
   if(txModal) txModal.style.display='none';
   renderAll();
+
+  // extra analytics: user action to save (already sent in addTx but record UI action)
+  sendAnalytics('save_button_clicked', { amount: amount, type });
 }
 
 /* -------------------- Rendering -------------------- */
@@ -665,6 +735,8 @@ function exportCSV(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download='QuietCash.csv'; a.click();
   URL.revokeObjectURL(url);
+
+  sendAnalytics('export', { format: 'csv', count: data.tx.length });
 }
 
 async function exportPDF(){
@@ -692,6 +764,8 @@ async function exportPDF(){
   });
 
   doc.save('QuietCash.pdf');
+
+  sendAnalytics('export', { format: 'pdf', count: data.tx.length });
 }
 
 function exportJSON(){
@@ -699,6 +773,8 @@ function exportJSON(){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'QuietCash_backup.json'; a.click();
   URL.revokeObjectURL(url);
+
+  sendAnalytics('export', { format: 'json', count: data.tx.length });
 }
 
 /* Import helpers */
@@ -720,6 +796,8 @@ if(importFileInput){
             store.set(data);
             renderAll();
             alert('Import successful.');
+
+            sendAnalytics('import', { count: data.tx.length, source_file: f.name });
           }
         } else {
           alert('Invalid backup file format.');
@@ -745,6 +823,8 @@ function clearAll(){
   store.set(data);
   renderAll();
   alert('All transactions cleared.');
+
+  sendAnalytics('data_cleared', { by_user: !!data.pin });
 }
 
 /* -------------------- Change & Set Password -------------------- */
@@ -755,8 +835,11 @@ function changePin(){
   data.pin = np.trim() || null;
   store.set(data);
   alert(data.pin ? 'Password updated.' : 'Password removed.');
+
+  sendAnalytics('pin_changed', { has_pin: !!data.pin });
 }
 
+/* -------------------- Premium placeholder -------------------- */
 function upgradePremium(){
   alert('Premium costs $1 / UGX (placeholder).\nYou can enable Premium features after payment integration.\nFor now this toggles a local flag.');
   data.premium = !data.premium;
@@ -764,6 +847,8 @@ function upgradePremium(){
   // optional UI hint if present
   const pn = document.getElementById('premiumNote');
   if(pn) pn.textContent = data.premium ? 'Premium: ON' : 'Premium unlock placeholder (Stripe/Play Billing later).';
+
+  sendAnalytics('premium_toggled', { premium: data.premium ? 1 : 0 });
 }
 
 /* -------------------- Utilities -------------------- */
@@ -831,6 +916,8 @@ function calculateBalances(transactions){
 
 /* -------------------- Init -------------------- */
 renderAll();
+
+/* End of file */
 </script>
 </body>
 </html>
