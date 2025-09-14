@@ -716,6 +716,67 @@ function calculateBalances(transactions){
 
 /* -------------------- Init -------------------- */
 renderAll();
+function calculateBalances(transactions){
+  let thisWeekIn=0,thisWeekOut=0,lastWeekIn=0,lastWeekOut=0,thisMonthIn=0,thisMonthOut=0;
+  const today = new Date();
+  const todayISO = () => today.toISOString().slice(0,10);
+
+  const day = today.getDay();
+  const thisMonday = new Date(today); thisMonday.setDate(today.getDate() - (day===0?6:day-1));
+  const lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7);
+  const lastSunday = new Date(thisMonday); lastSunday.setDate(thisMonday.getDate() - 1);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  (transactions||[]).forEach(t=>{
+    const tDate = parseDate(t.date||todayISO());
+    const amt = Number(t.amount) || 0;
+
+    if(tDate >= thisMonday && tDate <= today){
+      if(t.amount > 0) thisWeekIn += amt;
+      else thisWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= lastMonday && tDate <= lastSunday){
+      if(t.amount > 0) lastWeekIn += amt;
+      else lastWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= monthStart && tDate <= today){
+      if(t.amount > 0) thisMonthIn += amt;
+      else thisMonthOut += Math.abs(amt);
+    }
+  });
+
+  // --- Migration block: restore old "transactions" if present ---
+  if (!localStorage.getItem('qc_data')) {
+    const oldTransactions = localStorage.getItem('transactions');
+    if (oldTransactions) {
+      try {
+        const parsed = JSON.parse(oldTransactions);
+        const migrated = {
+          pass: "",
+          transactions: parsed,
+          savings: [],
+          loan: []
+        };
+        localStorage.setItem('qc_data', JSON.stringify(migrated));
+        console.log("✅ Migrated old transactions to new qc_data format");
+      } catch (e) {
+        console.warn("Migration failed:", e);
+      }
+    }
+  }
+
+  safeSet("thisWeekBalance","UGX "+(thisWeekIn-thisWeekOut));
+  safeSet("thisWeekIn","UGX "+thisWeekIn);
+  safeSet("thisWeekOut","UGX "+thisWeekOut);
+  safeSet("lastWeekBalance","UGX "+(lastWeekIn-lastWeekOut));
+  safeSet("lastWeekIn","UGX "+lastWeekIn);
+  safeSet("lastWeekOut","UGX "+lastWeekOut);
+  safeSet("thisMonthBalance","UGX "+(thisMonthIn-thisMonthOut));
+  safeSet("thisMonthIn","UGX "+thisMonthIn);
+  safeSet("thisMonthOut","UGX "+thisMonthOut);
+}
 </script>
 </body>
 </html> 
