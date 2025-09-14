@@ -125,17 +125,13 @@
       <button class="btn" id="btnReports">📊 Reports</button>
       <button class="btn" id="btnExport">📂 Export</button>
       <button class="btn primary" onclick="window.location.href='savings.html'">💡 Savings</button>
- 
     </div>
   </header>
 
   <!-- DASHBOARD -->
   <div class="grid">
-    <!-- PATCHED Current Balance card: kept original overall balance elements + added weekly/monthly breakdown -->
     <div class="card">
       <h3>Current Balance</h3>
-
-      <!-- Original overall metric kept for compatibility -->
       <div class="metric"><span id="balance">UGX 0</span></div>
       <div class="row small muted" style="margin-top:8px">
         <div>Cash In: <b id="sumIn">UGX 0</b></div>
@@ -153,7 +149,6 @@
 
       <hr style="border:none;border-top:1px solid #1e2329;margin:12px 0">
 
-      <!-- NEW: Weekly / Last Week / Monthly breakdown -->
       <div class="small muted" style="margin-bottom:8px">Balances</div>
 
       <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -176,7 +171,6 @@
         </div>
       </div>
     </div>
-    <!-- END PATCH -->
 
     <div class="card">
       <h3>Today’s Transactions</h3>
@@ -229,10 +223,10 @@
   <div class="card" style="margin-top:14px">
     <h3>Settings</h3>
     <div class="row">
-  <button class="btn" id="btnChangePin">Change Password</button>
-  <button class="btn primary" onclick="window.location.href='loan.html'">📑 Loan Tracker</button>
-  <button class="btn ghost" id="btnAbout">About</button>
-</div>
+      <button class="btn" id="btnChangePin">Change Password</button>
+      <button class="btn primary" onclick="window.location.href='loan.html'">📑 Loan Tracker</button>
+      <button class="btn ghost" id="btnAbout">About</button>
+    </div>
   </div>
 </div>
 
@@ -283,6 +277,11 @@ const todayISO = () => new Date().toISOString().slice(0,10);
 const parseDate = d => new Date(d+'T00:00:00');
 const fmtDateTime = ts => new Date(ts).toLocaleString();
 
+function tryBind(id, fn){
+  const el = document.getElementById(id);
+  if(el) el.onclick = fn;
+}
+
 /* -------------------- Lock Screen -------------------- */
 const splashEl = document.querySelector('.splash');
 const appEl = document.getElementById('app');
@@ -298,13 +297,15 @@ setTimeout(()=>{ // after splash
   else { appEl.style.display='block'; }
 }, 4000);
 
-unlockBtn.onclick = () => {
-  const pin = lockPin.value.trim();
-  if(!pin){ alert('Enter password'); return; }
-  if(pin === data.pin){ lockEl.style.display='none'; appEl.style.display='block'; lockPin.value=''; }
-  else alert('Wrong password');
-};
-forgotBtn.onclick = ()=> alert('Password reset not available offline.\nUse your current password or Clear Data (will require password).');
+if(unlockBtn){
+  unlockBtn.onclick = () => {
+    const pin = lockPin.value.trim();
+    if(!pin){ alert('Enter password'); return; }
+    if(pin === data.pin){ lockEl.style.display='none'; appEl.style.display='block'; lockPin.value=''; }
+    else alert('Wrong password');
+  };
+}
+if(forgotBtn) forgotBtn.onclick = ()=> alert('Password reset not available offline.\nUse your current password or Clear Data (will require password).');
 
 /* -------------------- Elements -------------------- */
 const balanceEl = document.getElementById('balance');
@@ -322,19 +323,19 @@ const noHistory = document.getElementById('noHistory');
 const searchEl = document.getElementById('search');
 const filterTypeEl = document.getElementById('filterType');
 
-/* Buttons */
-document.getElementById('btnAdd').onclick = ()=> openTxModal();
-document.getElementById('btnHistory').onclick = ()=> window.scrollTo({top:document.body.scrollHeight/3, behavior:'smooth'});
-document.getElementById('btnReports').onclick = ()=> document.getElementById('reportChart').scrollIntoView({behavior:'smooth'});
-document.getElementById('btnExport').onclick = ()=> exportMenu();
-document.getElementById('btnClear').onclick = ()=> clearAll();
-document.getElementById('btnLock').onclick = ()=> { lockEl.style.display='flex'; };
-document.getElementById('btnChangePin').onclick = ()=> changePin();
-document.getElementById('btnPremium').onclick = ()=> upgradePremium();
-document.getElementById('btnAbout').onclick = ()=> alert('Quiet Cash\nVersion 1.0\nOffline-first money tracker.');
+/* Buttons safe binding */
+tryBind('btnAdd', ()=> openTxModal());
+tryBind('btnHistory', ()=> window.scrollTo({top:document.body.scrollHeight/3, behavior:'smooth'}));
+tryBind('btnReports', ()=> document.getElementById('reportChart').scrollIntoView({behavior:'smooth'}));
+tryBind('btnExport', ()=> exportMenu());
+// other binds
+tryBind('btnChangePin', ()=> changePin());
+tryBind('btnAbout', ()=> alert('Quiet Cash\nVersion 1.0\nOffline-first money tracker.'));
+/* If elements like btnClear, btnLock, btnPremium exist they will be bound; if not, nothing happens. */
 
-searchEl.oninput = renderHistory;
-filterTypeEl.onchange = renderHistory;
+/* Search/filter */
+if(searchEl) searchEl.oninput = renderHistory;
+if(filterTypeEl) filterTypeEl.onchange = renderHistory;
 
 /* Modal */
 const txModal = document.getElementById('txModal');
@@ -342,13 +343,16 @@ const txType = document.getElementById('txType');
 const txAmount = document.getElementById('txAmount');
 const txReason = document.getElementById('txReason');
 const txDate = document.getElementById('txDate');
-document.getElementById('txClose').onclick = ()=> txModal.style.display='none';
-document.getElementById('txSave').onclick = saveTx;
+if(document.getElementById('txClose')) document.getElementById('txClose').onclick = ()=> txModal.style.display='none';
+if(document.getElementById('txSave')) document.getElementById('txSave').onclick = saveTx;
 window.addEventListener('click', e=>{ if(e.target===txModal) txModal.style.display='none'; });
 
 function openTxModal(){
-  txType.value='in'; txAmount.value=''; txReason.value=''; txDate.value=todayISO();
-  txModal.style.display='flex';
+  if(txType) txType.value='in';
+  if(txAmount) txAmount.value='';
+  if(txReason) txReason.value='';
+  if(txDate) txDate.value=todayISO();
+  if(txModal) txModal.style.display='flex';
 }
 
 /* -------------------- Data Ops -------------------- */
@@ -366,7 +370,7 @@ function delTx(id){
 function saveTx(){
   const type = txType.value;
   const amount = Number(txAmount.value);
-  const reason = txReason.value.trim();
+  const reason = (txReason.value || '').trim();
   const date = txDate.value || todayISO();
 
   if(!amount || amount<=0){ alert('Enter a valid amount'); return; }
@@ -374,7 +378,7 @@ function saveTx(){
 
   const signedAmount = type==='in' ? amount : -amount;
   addTx({ id:cryptoRandom(), type, amount:signedAmount, reason, date, ts: Date.now() });
-  txModal.style.display='none';
+  if(txModal) txModal.style.display='none';
   renderAll();
 }
 
@@ -386,7 +390,6 @@ function renderAll(){
   renderHistory();
   renderWeeklyChart();
   renderReportChart(currentRange);
-  // keep weekly/monthly balances updated
   calculateBalances(data.tx);
 }
 
@@ -394,10 +397,10 @@ function renderSummary(){
   const sumIn = data.tx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
   const sumOut = Math.abs(data.tx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
   const net = sumIn - sumOut;
-  balanceEl.textContent = UGX(net);
-  sumInEl.textContent = UGX(sumIn);
-  sumOutEl.textContent = UGX(sumOut);
-  sumNetEl.textContent = UGX(net);
+  if(balanceEl) balanceEl.textContent = UGX(net);
+  if(sumInEl) sumInEl.textContent = UGX(sumIn);
+  if(sumOutEl) sumOutEl.textContent = UGX(sumOut);
+  if(sumNetEl) sumNetEl.textContent = UGX(net);
 
   // Loss check: ratio expense/income current month
   const m = new Date().toISOString().slice(0,7); // YYYY-MM
@@ -406,20 +409,21 @@ function renderSummary(){
   const mOut = Math.abs(monthTx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
   const ratio = mIn>0 ? Math.min(1, mOut/mIn) : (mOut>0 ? 1 : 0);
   const pct = Math.round(ratio*100);
-  lossBar.style.width = pct + '%';
+  if(lossBar) lossBar.style.width = pct + '%';
   let label = 'OK';
-  if (ratio < .4) { label='Safe'; lossLabel.style.color='#9effc9'; }
-  else if (ratio < .75) { label='Watch'; lossLabel.style.color='#ffe9b3'; }
-  else { label='Risk'; lossLabel.style.color='#ffc7c7'; }
-  lossLabel.textContent = `${label} • ${pct}%`;
+  if (ratio < .4) { label='Safe'; if(lossLabel) lossLabel.style.color='#9effc9'; }
+  else if (ratio < .75) { label='Watch'; if(lossLabel) lossLabel.style.color='#ffe9b3'; }
+  else { label='Risk'; if(lossLabel) lossLabel.style.color='#ffc7c7'; }
+  if(lossLabel) lossLabel.textContent = `${label} • ${pct}%`;
 }
 
 function renderToday(){
   const iso = todayISO();
   const list = data.tx.filter(t=>t.date===iso).sort((a,b)=>b.ts-a.ts);
+  if(!todayList) return;
   todayList.innerHTML='';
-  if(!list.length){ noToday.style.display='block'; return; }
-  noToday.style.display='none';
+  if(!list.length){ if(noToday) noToday.style.display='block'; return; }
+  if(noToday) noToday.style.display='none';
   list.forEach(t=>{
     const el = document.createElement('div');
     el.className='item';
@@ -442,9 +446,10 @@ function renderTop3(){
   });
   const arr = Object.entries(map).map(([d,v])=>({date:d,net:v}))
               .sort((a,b)=>Math.abs(b.net)-Math.abs(a.net)).slice(0,3);
+  if(!top3El) return;
   top3El.innerHTML='';
-  if(!arr.length){ noTop.style.display='block'; return; }
-  noTop.style.display='none';
+  if(!arr.length){ if(noTop) noTop.style.display='block'; return; }
+  if(noTop) noTop.style.display='none';
   arr.forEach(d=>{
     const el = document.createElement('div');
     el.className='item';
@@ -457,16 +462,17 @@ function renderTop3(){
 }
 
 function renderHistory(){
-  const q = (searchEl.value||'').toLowerCase();
-  const f = filterTypeEl.value;
+  const q = (searchEl && searchEl.value || '').toLowerCase();
+  const f = filterTypeEl && filterTypeEl.value;
   const list = data.tx
     .filter(t => (!f || (f==='in'?t.amount>0:t.amount<0)))
     .filter(t => !q || (t.reason.toLowerCase().includes(q) || (t.date||'').includes(q)))
     .sort((a,b)=>b.ts-a.ts);
 
+  if(!historyList) return;
   historyList.innerHTML='';
-  if(!list.length){ noHistory.style.display='block'; return; }
-  noHistory.style.display='none';
+  if(!list.length){ if(noHistory) noHistory.style.display='block'; return; }
+  if(noHistory) noHistory.style.display='none';
 
   list.forEach(t=>{
     const el = document.createElement('div');
@@ -503,7 +509,8 @@ function renderWeeklyChart(){
     const sum = data.tx.filter(t=>t.date===iso).reduce((a,b)=>a+b.amount,0);
     vals.push(sum);
   }
-  const ctx = document.getElementById('weeklyChart').getContext('2d');
+  const ctx = document.getElementById('weeklyChart') && document.getElementById('weeklyChart').getContext('2d');
+  if(!ctx) return;
   if(weeklyChart) weeklyChart.destroy();
   weeklyChart = new Chart(ctx,{
     type:'bar',
@@ -549,15 +556,16 @@ function groupByReason(range){
 
 function renderReportChart(range){
   const {labels,inVals,outVals} = groupByReason(range);
-  const ctx = document.getElementById('reportChart').getContext('2d');
+  const netVals = labels.map((_,i)=> inVals[i] - outVals[i]); // positive = net income, negative = net expense
+  const ctx = document.getElementById('reportChart') && document.getElementById('reportChart').getContext('2d');
+  if(!ctx) return;
   if(pieChart) pieChart.destroy();
   pieChart = new Chart(ctx,{
     type:'pie',
     data:{
       labels,
       datasets:[
-        {label:'Cash In', data:inVals },
-        {label:'Cash Out', data:outVals }
+        { data: netVals.map(v=> Math.abs(v)) } // display absolute magnitudes per reason
       ]
     },
     options:{
@@ -606,7 +614,7 @@ async function exportPDF(){
   doc.text(`Net: ${(sumIn-sumOut).toLocaleString()}`,40,y); y+=24;
 
   doc.setFont('helvetica','bold'); doc.text('Transactions',40,y); y+=16; doc.setFont('helvetica','');
-  const rows = data.tx.sort((a,b)=>b.ts-a.ts).slice(0,60); // first 60 rows
+  const rows = data.tx.slice().sort((a,b)=>b.ts-a.ts).slice(0,60); // first 60 rows
   rows.forEach(t=>{
     const line = `${t.amount>0?'IN':'OUT'}  UGX ${Math.abs(t.amount).toLocaleString()}  — ${t.reason}  •  ${t.date}`;
     doc.text(line, 40, y); y+=14; if(y>760){ doc.addPage(); y=60; }
@@ -642,18 +650,19 @@ function upgradePremium(){
   alert('Premium costs $1 / UGX (placeholder).\nYou can enable Premium features after payment integration.\nFor now this toggles a local flag.');
   data.premium = !data.premium;
   store.set(data);
-  document.getElementById('premiumNote').textContent = data.premium ? 'Premium: ON' : 'Premium unlock placeholder (Stripe/Play Billing later).';
+  // optional UI hint if present
+  const pn = document.getElementById('premiumNote');
+  if(pn) pn.textContent = data.premium ? 'Premium: ON' : 'Premium unlock placeholder (Stripe/Play Billing later).';
 }
 
 /* -------------------- Utilities -------------------- */
 function cryptoRandom(){
-  // Short id
   return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
 }
 function escapeHTML(s){ return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) }
 function safeCSV(s){ return `"${(s||'').replace(/"/g,'""')}"` }
 
-/* -------------------- New: Calculate weekly / last week / month balances -------------------- */
+/* -------------------- Calculate weekly / last week / month balances -------------------- */
 function calculateBalances(transactions){
   const today = new Date();
 
@@ -676,7 +685,6 @@ function calculateBalances(transactions){
   let thisMonthIn = 0, thisMonthOut = 0;
 
   (transactions||[]).forEach(t=>{
-    // t.date is YYYY-MM-DD
     const tDate = parseDate(t.date||todayISO());
     const amt = Number(t.amount) || 0;
 
@@ -694,12 +702,8 @@ function calculateBalances(transactions){
       if(t.amount > 0) thisMonthIn += amt;
       else thisMonthOut += Math.abs(amt);
     }
-    if(localStorage.getItem("oldKey")){
-    localStorage.setItem("newKey", localStorage.getItem("oldKey"));
-}
   });
 
-  // update DOM (safe even if elements missing)
   const safeSet = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
   safeSet('thisWeekIn', UGX(thisWeekIn));
   safeSet('thisWeekOut', UGX(thisWeekOut));
@@ -715,63 +719,7 @@ function calculateBalances(transactions){
 }
 
 /* -------------------- Init -------------------- */
-/* -------------------- New: Calculate weekly / last week / month balances -------------------- */
-function calculateBalances(transactions){
-  const today = new Date();
-
-  function getMonday(d){
-    d = new Date(d);
-    const day = d.getDay(); // 0 = Sunday, 1 = Monday
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
-  }
-
-  const thisMonday = getMonday(today);
-  const lastMonday = new Date(thisMonday);
-  lastMonday.setDate(thisMonday.getDate() - 7);
-  const lastSunday = new Date(thisMonday);
-  lastSunday.setDate(thisMonday.getDate() - 1);
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-  let thisWeekIn = 0, thisWeekOut = 0;
-  let lastWeekIn = 0, lastWeekOut = 0;
-  let thisMonthIn = 0, thisMonthOut = 0;
-
-  (transactions||[]).forEach(t=>{
-    const tDate = parseDate(t.date||todayISO());
-    const amt = Number(t.amount) || 0;
-
-    if(tDate >= thisMonday && tDate <= today){
-      if(t.amount > 0) thisWeekIn += amt;
-      else thisWeekOut += Math.abs(amt);
-    }
-
-    if(tDate >= lastMonday && tDate <= lastSunday){
-      if(t.amount > 0) lastWeekIn += amt;
-      else lastWeekOut += Math.abs(amt);
-    }
-
-    if(tDate >= monthStart && tDate <= today){
-      if(t.amount > 0) thisMonthIn += amt;
-      else thisMonthOut += Math.abs(amt);
-    }
-  });
-
-  // update DOM
-  const safeSet = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-
-  safeSet('thisWeekIn', UGX(thisWeekIn));
-  safeSet('thisWeekOut', UGX(thisWeekOut));
-  safeSet('thisWeekBalance', UGX(thisWeekIn - thisWeekOut));
-
-  safeSet('lastWeekIn', UGX(lastWeekIn));
-  safeSet('lastWeekOut', UGX(lastWeekOut));
-  safeSet('lastWeekBalance', UGX(lastWeekIn - lastWeekOut));
-
-  safeSet('thisMonthIn', UGX(thisMonthIn));
-  safeSet('thisMonthOut', UGX(thisMonthOut));
-  safeSet('thisMonthBalance', UGX(thisMonthIn - thisMonthOut));
-}
+renderAll();
 </script>
 </body>
-</html> 
+</html>
