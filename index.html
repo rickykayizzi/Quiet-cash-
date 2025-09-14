@@ -715,17 +715,27 @@ function calculateBalances(transactions){
 }
 
 /* -------------------- Init -------------------- */
-renderAll();
+/* -------------------- New: Calculate weekly / last week / month balances -------------------- */
 function calculateBalances(transactions){
-  let thisWeekIn=0,thisWeekOut=0,lastWeekIn=0,lastWeekOut=0,thisMonthIn=0,thisMonthOut=0;
   const today = new Date();
-  const todayISO = () => today.toISOString().slice(0,10);
 
-  const day = today.getDay();
-  const thisMonday = new Date(today); thisMonday.setDate(today.getDate() - (day===0?6:day-1));
-  const lastMonday = new Date(thisMonday); lastMonday.setDate(thisMonday.getDate() - 7);
-  const lastSunday = new Date(thisMonday); lastSunday.setDate(thisMonday.getDate() - 1);
+  function getMonday(d){
+    d = new Date(d);
+    const day = d.getDay(); // 0 = Sunday, 1 = Monday
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+
+  const thisMonday = getMonday(today);
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+  const lastSunday = new Date(thisMonday);
+  lastSunday.setDate(thisMonday.getDate() - 1);
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  let thisWeekIn = 0, thisWeekOut = 0;
+  let lastWeekIn = 0, lastWeekOut = 0;
+  let thisMonthIn = 0, thisMonthOut = 0;
 
   (transactions||[]).forEach(t=>{
     const tDate = parseDate(t.date||todayISO());
@@ -747,35 +757,20 @@ function calculateBalances(transactions){
     }
   });
 
-  // --- Migration block: restore old "transactions" if present ---
-  if (!localStorage.getItem('qc_data')) {
-    const oldTransactions = localStorage.getItem('transactions');
-    if (oldTransactions) {
-      try {
-        const parsed = JSON.parse(oldTransactions);
-        const migrated = {
-          pass: "",
-          transactions: parsed,
-          savings: [],
-          loan: []
-        };
-        localStorage.setItem('qc_data', JSON.stringify(migrated));
-        console.log("✅ Migrated old transactions to new qc_data format");
-      } catch (e) {
-        console.warn("Migration failed:", e);
-      }
-    }
-  }
+  // update DOM
+  const safeSet = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
 
-  safeSet("thisWeekBalance","UGX "+(thisWeekIn-thisWeekOut));
-  safeSet("thisWeekIn","UGX "+thisWeekIn);
-  safeSet("thisWeekOut","UGX "+thisWeekOut);
-  safeSet("lastWeekBalance","UGX "+(lastWeekIn-lastWeekOut));
-  safeSet("lastWeekIn","UGX "+lastWeekIn);
-  safeSet("lastWeekOut","UGX "+lastWeekOut);
-  safeSet("thisMonthBalance","UGX "+(thisMonthIn-thisMonthOut));
-  safeSet("thisMonthIn","UGX "+thisMonthIn);
-  safeSet("thisMonthOut","UGX "+thisMonthOut);
+  safeSet('thisWeekIn', UGX(thisWeekIn));
+  safeSet('thisWeekOut', UGX(thisWeekOut));
+  safeSet('thisWeekBalance', UGX(thisWeekIn - thisWeekOut));
+
+  safeSet('lastWeekIn', UGX(lastWeekIn));
+  safeSet('lastWeekOut', UGX(lastWeekOut));
+  safeSet('lastWeekBalance', UGX(lastWeekIn - lastWeekOut));
+
+  safeSet('thisMonthIn', UGX(thisMonthIn));
+  safeSet('thisMonthOut', UGX(thisMonthOut));
+  safeSet('thisMonthBalance', UGX(thisMonthIn - thisMonthOut));
 }
 </script>
 </body>
