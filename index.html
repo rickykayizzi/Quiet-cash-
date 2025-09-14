@@ -270,6 +270,26 @@
 
 <script>
 /* -------------------- Storage & State -------------------- */
+// --- Migration block: restore old "transactions" if present ---
+if (!localStorage.getItem('qc_data')) {
+  const oldTransactions = localStorage.getItem('transactions');
+  if (oldTransactions) {
+    try {
+      // Wrap old list into new qc_data structure
+      const parsed = JSON.parse(oldTransactions);
+      const migrated = {
+        pass: "",
+        transactions: parsed,
+        savings: [],
+        loan: []
+      };
+      localStorage.setItem('qc_data', JSON.stringify(migrated));
+      console.log("✅ Migrated old transactions to new qc_data format");
+    } catch (e) {
+      console.warn("Migration failed:", e);
+    }
+  }
+}
 const store = {
   get(){ return JSON.parse(localStorage.getItem('qc_data')||'{"tx":[],"premium":false,"pin":null}') },
   set(d){ localStorage.setItem('qc_data', JSON.stringify(d)) }
