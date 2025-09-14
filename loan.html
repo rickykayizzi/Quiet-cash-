@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiet Cash — Multi-Loan Tracker (PWA)</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#4f46e5;--success:#16a34a;--danger:#ef4444}
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:linear-gradient(180deg,#071028 0%, #071122 100%);color:#e6eef8;min-height:100vh;padding:18px}
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,.6)}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input,button,select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.04);background:transparent;color:inherit}
+    .row{display:flex;gap:8px}
+    .row > *{flex:1}
+    .btn{cursor:pointer;padding:10px;border-radius:10px;border:none}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),#7c3aed);color:white}
+    .muted{color:var(--muted);font-size:13px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;border-bottom:1px dashed rgba(255,255,255,.03);text-align:left;font-size:13px}
+    .small{font-size:12px}
+    .progress{height:14px;border-radius:10px;background:rgba(255,255,255,.05);overflow:hidden;position:relative;}
+    .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#16a34a,#60a5fa)}
+    #finish-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:600;white-space:nowrap;color:white;cursor:help;}
+    #finish-label:hover::after{content:attr(data-tip);position:absolute;bottom:125%;left:50%;transform:translateX(-50%);background:rgba(15,17,36,.95);padding:6px 8px;border-radius:6px;color:#e6eef8;font-size:11px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+    .history-list{max-height:260px;overflow:auto;margin-top:8px}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:rgba(10,12,20,.96);padding:10px 14px;border-radius:10px;box-shadow:0 6px 20px rgba(2,6,23,.6);color:white}
+    footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+    .loan-row{display:flex;gap:8px;align-items:center}
+    .loan-item{padding:8px;border-radius:8px;background:rgba(255,255,255,.02);cursor:pointer}
+    .loan-item.active{outline:2px solid rgba(99,102,241,.2)}
+    @media(max-width:880px){.grid{grid-template-columns:1fr;}.wrap{padding:12px}}
+  </style>
+  <meta name="theme-color" content="#071028" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#0ea5a4,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700">QC</div>
+      <div>
+        <h1>Quiet Cash — Multi-Loan Tracker</h1>
+        <div class="muted">Manage multiple loans, add payments, and celebrate milestones.</div>
+      </div>
+    </header>
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3 style="margin-top:0">Loans</h3>
+          <div class="muted small">Create or switch between loans below.</div>
+          <div style="height:8px"></div>
+          <div class="row" style="margin-bottom:8px">
+            <input id="new-loan-name" placeholder="Loan name (e.g., Mama's loan)" />
+            <input id="new-loan-amount" type="number" placeholder="Amount" />
+            <button id="add-loan" class="btn btn-primary">Add</button>
+          </div>
+          <div id="loans-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          <div style="height:12px"></div>
+          <div class="muted small">Selected loan actions</div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <button id="export-loan-csv" class="btn">Export CSV</button>
+            <button id="export-loan-pdf" class="btn">Export PDF</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">Add payment</h3>
+          <div class="muted small">Add payment to the currently selected loan.</div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <div>
+              <label>Amount</label>
+              <input id="pay-amount" type="number" step="0.01" value="100" />
+            </div>
+            <div>
+              <label>Date</label>
+              <input id="pay-date" type="date" />
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <label>Reason (optional)</label>
+          <input id="pay-reason" placeholder="e.g., instalment" />
+          <div style="height:8px"></div>
+          <div class="row">
+            <button id="add-payment" class="btn btn-primary">Add payment</button>
+            <button id="undo-payment" class="btn">Undo last</button>
+          </div>
+          <div class="history-list" id="payments-list"></div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card">
+          <h3 style="margin-top:0">Summary</h3>
+          <div style="font-size:18px;margin-bottom:4px">Selected loan</div>
+          <div id="loan-name" style="font-size:18px;font-weight:700">—</div>
+          <div style="height:8px"></div>
+          <div style="font-size:14px">Original amount</div>
+          <div id="loan-original" style="font-weight:700">UGX 0.00</div>
+          <div style="height:8px"></div>
+          <div style="font-size:14px">Remaining balance</div>
+          <div id="remaining" style="font-size:22px;font-weight:700">UGX 0.00</div>
+          <div style="height:8px"></div>
+          <div class="progress">
+            <i id="progress-bar"></i>
+            <div id="finish-label"></div>
+          </div>
+          <div style="height:12px"></div>
+          <div style="font-size:15px;font-weight:600">Total Paid: <span id="total-paid">UGX 0</span></div>
+          <div style="height:12px"></div>
+          <div id="milestones" class="muted small">Milestones: 0%</div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">Notes</h3>
+          <div class="muted small">Offline-first PWA. Each loan stores its own payments locally.</div>
+        </div>
+      </aside>
+    </div>
+    <footer>Quiet Cash — Multi-Loan Tracker • Works offline</footer>
+  </div>
+  <div id="toast" class="toast" style="display:none"></div>
+  <script>
+let loans = [];
+let selectedLoanId = null;
+
+const el = id => document.getElementById(id);
+const fmt = v => new Intl.NumberFormat('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}).format(v);
+
+function save(){ localStorage.setItem('qc_multi_loans', JSON.stringify({loans, selectedLoanId})); }
+function load(){ 
+    try{
+        const d = JSON.parse(localStorage.getItem('qc_multi_loans')); 
+        if(d){ loans=d.loans||[]; selectedLoanId=d.selectedLoanId||null; } 
+    } catch(e){}
+}
+function uid(){ return 'l_'+Math.random().toString(36).slice(2,9); }
+
+function addLoan(name, amount){
+    const loan = {
+        id: uid(),
+        name: name||('Loan '+(loans.length+1)),
+        principal: +parseFloat(amount||0).toFixed(2),
+        payments: [],
+        created: new Date().toISOString()
+    };
+    loans.push(loan);
+    selectedLoanId = loan.id;
+    renderLoans();
+    save();
+    showToast('Loan created');
+    renderSelected();
+}
+
+function deleteLoan(id){
+    loans = loans.filter(l => l.id!==id);
+    if(selectedLoanId === id) selectedLoanId = loans.length ? loans[0].id : null;
+    renderLoans(); save(); renderSelected();
+}
+
+function getLoan(id){ return loans.find(l => l.id===id); }
+
+function renderLoans(){
+    const container = el('loans-list'); container.innerHTML='';
+    if(loans.length===0){ container.innerHTML='<div class="muted small">No loans yet</div>'; return; }
+    for(const l of loans){
+        const div = document.createElement('div'); div.className = 'loan-item'+(l.id===selectedLoanId?' active':'');
+        div.innerHTML = `<div style="font-weight:700">${l.name}</div><div class="small muted">UGX ${fmt(l.principal)}</div>`;
+        div.onclick = ()=>{ selectedLoanId = l.id; renderLoans(); renderSelected(); save(); };
+
+        const del = document.createElement('button'); del.className='btn'; del.style.padding='6px 8px'; del.style.marginLeft='8px'; del.textContent='Del';
+        del.onclick = e => { e.stopPropagation(); if(confirm('Delete loan and its payments?')) deleteLoan(l.id); };
+        const wrapper = document.createElement('div'); wrapper.className='loan-row'; wrapper.appendChild(div); wrapper.appendChild(del);
+        container.appendChild(wrapper);
+    }
+}
+
+function renderSelected(){
+    const sel = getLoan(selectedLoanId); 
+    if(!sel){
+        el('loan-name').innerText='—'; el('loan-original').innerText='UGX 0.00'; el('remaining').innerText='UGX 0.00';
+        el('total-paid').innerText='UGX 0.00'; el('payments-list').innerHTML='<div class="muted small">No loan selected</div>';
+        el('milestones').innerText='Milestones: 0%'; el('progress-bar').style.width='0%'; el('finish-label').innerText='';
+        return;
+    }
+
+    el('loan-name').innerText = sel.name;
+    el('loan-original').innerText = 'UGX ' + fmt(sel.principal);
+
+    const totalPaid = sel.payments.reduce((s,p)=>s+p.amount,0);
+    const remaining = Math.max(0, sel.principal - totalPaid);
+    el('remaining').innerText = 'UGX ' + fmt(remaining);
+    el('total-paid').innerText = 'UGX ' + fmt(totalPaid);
+
+    const pct = sel.principal ? (totalPaid/sel.principal)*100 : 0;
+    el('progress-bar').style.width = Math.min(100, pct)+'%';
+    if(pct>=100) el('progress-bar').style.background='linear-gradient(90deg,#059669,#10b981)';
+    else if(pct>=75) el('progress-bar').style.background='linear-gradient(90deg,#16a34a,#60a5fa)';
+    else if(pct>=50) el('progress-bar').style.background='linear-gradient(90deg,#f59e0b,#f97316)';
+    else el('progress-bar').style.background='linear-gradient(90deg,#ef4444,#f43f5e)';
+
+    // Milestones
+    const milestones = [25,50,75,100];
+    const reached = milestones.filter(m=>pct>=m);
+    el('milestones').innerText = 'Milestones: ' + (reached.length ? reached.join('% , ')+'%' : '0%');
+
+    // Payments list
+    const c = el('payments-list');
+    if(sel.payments.length===0){ c.innerHTML='<div class="muted small">No payments yet</div>'; }
+    else{
+        const html = ['<table><thead><tr><th>Date</th><th>Amount</th><th>Reason</th></tr></thead><tbody>'];
+        for(const p of sel.payments.slice().reverse()) html.push(`<tr><td class="small">${p.date}</td><td>UGX ${fmt(p.amount)}</td><td class="small">${p.reason||''}</td></tr>`);
+        html.push('</tbody></table>'); c.innerHTML = html.join('\n');
+    }
+
+    // Milestone notifications
+    const lastNotifiedKey = 'qc_milestones_notified_'+sel.id;
+    const notified = JSON.parse(localStorage.getItem(lastNotifiedKey) || '[]');
+    for(const m of milestones){
+        if(pct>=m && !notified.includes(m)){ notified.push(m); localStorage.setItem(lastNotifiedKey, JSON.stringify(notified)); showToast(`🎉 Congrats — you reached ${m}% of ${sel.name}`); }
+    }
+
+    // Projected finish
+    if(sel.payments.length>1){
+        const firstDate = new Date(sel.payments[0].date);
+        const lastDate = new Date(sel.payments[sel.payments.length-1].date);
+        const daysDiff = Math.max(1, (lastDate - firstDate)/(1000*60*60*24));
+        const dailyAvg = totalPaid / daysDiff;
+        const remainingDays = dailyAvg>0 ? Math.ceil(remaining/dailyAvg) : '-';
+        el('finish-label').innerText = remainingDays !== '-' ? `≈ ${remainingDays} days left` : '';
+        el('finish-label').setAttribute('data-tip', 'Projected finish if current pace continues');
+    } else el('finish-label').innerText='';
+
+    save();
+}
+
+// Add payment
+function addPaymentToSelected(amount,date,reason){
+    const sel = getLoan(selectedLoanId);
+    if(!sel) return alert('Select or create a loan first');
+    sel.payments.push({
+        amount: +parseFloat(amount).toFixed(2),
+        date: date||new Date().toISOString().slice(0,10),
+        reason: reason||''
+    });
+    renderSelected();
+}
+
+// Undo last payment
+function undoLastPayment(){
+    const sel = getLoan(selectedLoanId);
+    if(!sel || sel.payments.length===0) return;
+    sel.payments.pop(); renderSelected();
+}
+
+// Export CSV
+function exportLoanCSV(id){
+    const sel = getLoan(id);
+    if(!sel) return alert('No loan');
+    const rows = [['Date','Amount','Reason']];
+    sel.payments.forEach(p=>rows.push([p.date,p.amount,p.reason]));
+    const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=(sel.name.replace(/[^a-z0-9]/gi,'_')||'loan')+'_payments.csv'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Export PDF
+function exportLoanPDF(id){
+    const sel = getLoan(id);
+    if(!sel) return alert('No loan');
+    const w = window.open('');
+    w.document.write('<h2>Quiet Cash — '+sel.name+'</h2>');
+    w.document.write('<p>Original: UGX '+fmt(sel.principal)+'</p>');
+    const total = sel.payments.reduce((s,p)=>s+p.amount,0);
+    w.document.write('<p>Total Paid: UGX '+fmt(total)+'</p>');
+    w.document.write('<p>Remaining: UGX '+fmt(Math.max(0,sel.principal-total))+'</p>');
+    w.document.write('<table border=1 cellspacing=0 cellpadding=5><tr><th>Date</th><th>Amount</th><th>Reason</th></tr>');
+    sel.payments.forEach(p=>w.document.write(`<tr><td>${p.date}</td><td>UGX ${fmt(p.amount)}</td><td>${p.reason||''}</td></tr>`));
+    w.document.write('</table>'); w.print();
+}
+
+// Helpers
+function showToast(msg,ms=2500){ const t=el('toast'); t.innerText=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',ms); }
+
+// Event bindings
+el('add-loan').onclick = ()=>{ const name=el('new-loan-name').value.trim(); const amt=el('new-loan-amount').value; if(!amt||isNaN(amt)) return alert('Enter amount'); addLoan(name, amt); el('new-loan-name').value=''; el('new-loan-amount').value=''; };
+el('add-payment').onclick = ()=>{ const amt=el('pay-amount').value; const date=el('pay-date').value||new Date().toISOString().slice(0,10); const reason=el('pay-reason').value; if(!amt||isNaN(amt)) return alert('Enter amount'); addPaymentToSelected(amt,date,reason); el('pay-reason').value=''; };
+el('undo-payment').onclick = ()=>undoLastPayment();
+el('export-loan-csv').onclick = ()=>{ if(!selectedLoanId) return alert('Select loan'); exportLoanCSV(selectedLoanId); };
+el('export-loan-pdf').onclick = ()=>{ if(!selectedLoanId) return alert('Select loan'); exportLoanPDF(selectedLoanId); };
+
+// Keyboard Enter
+['new-loan-name','new-loan-amount'].forEach(id=>el(id).addEventListener('keydown', e=>{ if(e.key==='Enter') el('add-loan').click(); }));
+['pay-amount','pay-reason'].forEach(id=>el(id).addEventListener('keydown', e=>{ if(e.key==='Enter') el('add-payment').click(); }));
+
+// Init
+load(); if(!selectedLoanId && loans.length) selectedLoanId = loans[0].id; renderLoans(); renderSelected();
+
+// Autosave
+setInterval(save, 2000);
+
+// Service worker
+if('serviceWorker' in navigator){
+    const sw=`const CACHE='qc-multi-v1';
+    self.addEventListener('install', e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/'])).catch(()=>{})); });
+    self.addEventListener('fetch', e=>{ if(e.request.method!=='GET') return; e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))); });`;
+    const blob = new Blob([sw], {type:'text/javascript'});
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+}
+</script>
