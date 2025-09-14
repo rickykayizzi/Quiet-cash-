@@ -95,6 +95,7 @@
   .note{font-size:.85rem;color:var(--muted)}
   .small{font-size:.9rem}
   canvas{max-height:260px}
+  .hidden-file{display:none}
 </style>
 </head>
 <body>
@@ -226,6 +227,8 @@
       <button class="btn" id="btnChangePin">Change Password</button>
       <button class="btn primary" onclick="window.location.href='loan.html'">📑 Loan Tracker</button>
       <button class="btn ghost" id="btnAbout">About</button>
+      <button class="btn warn" id="btnClear">Clear Data</button>
+      <button class="btn" id="btnRestore">Restore (Import JSON)</button>
     </div>
   </div>
 </div>
@@ -262,14 +265,78 @@
   </div>
 </div>
 
+<!-- Hidden import input -->
+<input type="file" id="importFile" accept="application/json" class="hidden-file" />
+
 <script>
-/* Entire JS logic as you provided — storage, rendering, charts, modal, lock, export, etc. */
+/*
+  Quiet Cash — full single-file app.
+
+  Migration & recovery notes:
+  - When the app's domain/origin changes, browser localStorage from the old origin is NOT accessible.
+    That means automatic recovery across different domains is impossible from client-side code.
+  - This script attempts to find and migrate *legacy keys inside the current origin's localStorage*
+    (common names are checked). If you had stored under another key on this SAME origin, the app will
+    try to migrate it automatically.
+  - If your old data was on a different origin (e.g., github.io → custom domain), you'll need a backup
+    file (JSON) exported from the old site to restore. Use the Import button to load it.
+*/
+
 /* -------------------- Storage & State -------------------- */
 
+/* Primary storage key used going forward */
+const PRIMARY_KEY = 'qc_data';
+
+/* Common legacy keys to check (add more if you remember a custom name you used previously) */
+const LEGACY_KEYS = [
+  'quiet_cash',
+  'quietcash',
+  'quietCash',
+  'QuietCashData',
+  'quiet-cash-data',
+  'qc_data',
+  'qc-backup',
+  'quietcash_data',
+  'quietcash_backup',
+  'quiet.cash',
+  'quiet-cash'
+];
+
+/* store helper with migration attempt */
 const store = {
-  get(){ return JSON.parse(localStorage.getItem('qc_data')||'{"tx":[],"premium":false,"pin":null}') },
-  set(d){ localStorage.setItem('qc_data', JSON.stringify(d)) }
+  get(){
+    // Try primary key first
+    let raw = localStorage.getItem(PRIMARY_KEY);
+    if(raw){
+      try{ return JSON.parse(raw); }catch(e){}
+    }
+
+    // If primary missing or invalid, search legacy keys in current origin's localStorage
+    for(const k of LEGACY_KEYS){
+      if(k === PRIMARY_KEY) continue;
+      const v = localStorage.getItem(k);
+      if(v){
+        try{
+          const parsed = JSON.parse(v);
+          // best-effort validation (must be object with tx array)
+          if(parsed && typeof parsed === 'object' && Array.isArray(parsed.tx)){
+            // migrate into primary
+            localStorage.setItem(PRIMARY_KEY, JSON.stringify(parsed));
+            // Optionally keep the old key (no deletion). We'll also mark migration.
+            console.info('QuietCash: migrated data from legacy key:', k);
+            alert('Quiet Cash: found data stored under "'+k+'" — automatically migrated it into the app.');
+            return parsed;
+          }
+        }catch(e){ /* ignore parse errors */ }
+      }
+    }
+
+    // nothing found — return default structure
+    return { tx: [], premium: false, pin: null };
+  },
+  set(d){ localStorage.setItem(PRIMARY_KEY, JSON.stringify(d)) }
 };
+
 let data = store.get();
 
 /* -------------------- Helpers -------------------- */
@@ -332,7 +399,8 @@ tryBind('btnExport', ()=> exportMenu());
 // other binds
 tryBind('btnChangePin', ()=> changePin());
 tryBind('btnAbout', ()=> alert('Quiet Cash\nVersion 1.0\nOffline-first money tracker.'));
-/* If elements like btnClear, btnLock, btnPremium exist they will be bound; if not, nothing happens. */
+tryBind('btnClear', ()=> clearAll());
+tryBind('btnRestore', ()=> triggerImport());
 
 /* Search/filter */
 if(searchEl) searchEl.oninput = renderHistory;
@@ -577,12 +645,14 @@ function renderReportChart(range){
   });
 }
 
-/* -------------------- Export -------------------- */
+/* -------------------- Export / Import -------------------- */
 function exportMenu(){
-  const pick = prompt('Export: type "csv" or "pdf"');
+  const pick = prompt('Export: type "csv", "pdf", or "json" (backup). Type "import" to restore JSON file.');
   if(!pick) return;
   if(pick.toLowerCase()==='csv') exportCSV();
   else if(pick.toLowerCase()==='pdf') exportPDF();
+  else if(pick.toLowerCase()==='json') exportJSON();
+  else if(pick.toLowerCase()==='import') triggerImport();
   else alert('Unknown option.');
 }
 
@@ -622,6 +692,46 @@ async function exportPDF(){
   });
 
   doc.save('QuietCash.pdf');
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'QuietCash_backup.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* Import helpers */
+const importFileInput = document.getElementById('importFile');
+function triggerImport(){
+  if(importFileInput) importFileInput.click();
+}
+if(importFileInput){
+  importFileInput.onchange = e=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        if(parsed && typeof parsed === 'object' && Array.isArray(parsed.tx)){
+          if(confirm('Import will overwrite current transactions with file contents. Continue?')){
+            data = parsed;
+            store.set(data);
+            renderAll();
+            alert('Import successful.');
+          }
+        } else {
+          alert('Invalid backup file format.');
+        }
+      }catch(err){
+        alert('Invalid JSON file.');
+      } finally {
+        importFileInput.value = '';
+      }
+    };
+    reader.readAsText(f);
+  };
 }
 
 /* -------------------- Clear Data -------------------- */
