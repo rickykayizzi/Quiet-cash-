@@ -38,8 +38,61 @@
   <meta name="theme-color" content="#071028" />
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2590184626202247"
      crossorigin="anonymous"></script>
+     <style>
+.menu-btn{
+  position:fixed;
+  top:16px;
+  right:16px;
+  background:var(--accent);
+  color:white;
+  font-size:22px;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  z-index:1001;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.menu{
+  position:fixed;
+  top:0;
+  right:-220px;
+  width:200px;
+  height:100%;
+  background:var(--card);
+  box-shadow:-4px 0 12px rgba(0,0,0,.4);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  transition:right .3s ease;
+  z-index:1000;
+}
+.menu a{
+  color:white;
+  text-decoration:none;
+  font-size:15px;
+  padding:8px;
+  border-radius:6px;
+  background:rgba(255,255,255,.04);
+}
+.menu a:hover{
+  background:rgba(255,255,255,.1);
+}
+.menu.open{ right:0; }
+</style>
 </head>
 <body>
+  <!-- Floating Hamburger Menu -->
+<div id="menu-btn" class="menu-btn">☰</div>
+<nav id="menu" class="menu">
+  <a href="blog16.html">📈 How Paying Off a Loan Boosts Your Credit Score</a>
+  <a href="blog11.html">💡 Budgeting Tips to Free Up Money</a>
+  <a href="blog10.html">⚠️ What To Do If You Miss a Loan Payment</a>
+  <a href="blog7.html">🎯 How to Set Milestones to Stay Motivated</a>
+  <a href="blog4.html">📊 How to Track Multiple Loans Without Stress</a>
+  <a href="blog14.html">🏆 Real Stories: How People Cleared Their Loans</a>
+  <a href="blog15.html">🎉 Celebrating Loan Milestones Without Overspending</a>
+</nav>
   <div class="wrap">
     <header>
       <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#0ea5a4,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700">QC</div>
@@ -315,4 +368,9 @@ if('serviceWorker' in navigator){
     const url = URL.createObjectURL(blob);
     navigator.serviceWorker.register(url).catch(()=>{});
 }
+</script>
+<script>
+const menuBtn=document.getElementById("menu-btn");
+const menu=document.getElementById("menu");
+menuBtn.onclick=()=> menu.classList.toggle("open");
 </script>
