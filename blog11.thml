@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Budgeting Tips to Free Up Money</title>
+  <style>
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(180deg,#0f1724,#0b1220);
+      color: #e6eef8;
+      line-height: 1.6;
+      max-width: 800px;
+      margin-inline: auto;
+    }
+    h1 {
+      color: #16a34a;
+      font-size: 26px;
+    }
+    h2 {
+      color: #22c55e;
+      margin-top: 28px;
+    }
+    p {
+      margin: 14px 0;
+      font-size: 16px;
+    }
+    .highlight {
+      background: rgba(34,197,94,0.15);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #bbf7d0;
+    }
+    a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .back {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 14px;
+      background: #16a34a;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .back:hover { background: #15803d; }
+  </style>
+</head>
+<body>
+  <h1>Budgeting Tips to Free Up Money</h1>
+
+  <p>What if you could find an extra <span class="highlight">500,000 or 1,000,000</span> in your budget every month — without working extra hours? The truth is, you can. Smart budgeting isn’t about saying “no” to life. It’s about saying “yes” to freedom, faster loan payoffs, and less stress.</p>
+
+  <h2>1. Track every coin</h2>
+  <p>You can’t control what you don’t see. Write down or log where your money goes — food, transport, streaming, snacks. Most people are shocked by the hidden leaks.</p>
+
+  <h2>2. Cut the “invisible” costs</h2>
+  <p>Old subscriptions, unused gym memberships, daily takeaways — cancel or reduce them. Every small cut adds up, and suddenly you’ve got an extra loan payment sitting in your pocket.</p>
+
+  <h2>3. Give your money a job</h2>
+  <p>Before payday, decide: this goes to bills, this to food, this to debt. When every coin has a mission, you stop wondering where it disappeared.</p>
+
+  <h2>4. Reward yourself smartly</h2>
+  <p>Budgeting doesn’t mean being boring. Set a tiny “fun fund” so you don’t feel deprived. The goal is balance, not punishment.</p>
+
+  <h2>The big picture</h2>
+  <p>Every dollar you free up today is a step closer to clearing your loans tomorrow. Budgeting is not restriction — it’s <span class="highlight">buying back your freedom</span>.</p>
+
+  <p><b>Pro move:</b> Use Quiet Cash to spot spending leaks, set targets, and turn freed-up money into faster loan payments. You’ll be surprised how quickly the numbers fall.</p>
+
+  <a href="index.html" class="back">← Back to Quiet Cash</a>
+</body>
+</html>
