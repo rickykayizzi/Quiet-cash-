@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quiet Cash</title>
+<meta name="theme-color" content="#000000"/>
+
+<!-- Charts + PDF -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<!-- Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- Favicon / App Icons -->
+<link rel="icon" href="https://quietcash.life/logo.png" type="image/png">
+<link rel="apple-touch-icon" href="https://quietcash.life/logo.png">
+<meta name="application-name" content="Quiet Cash">
+<meta name="apple-mobile-web-app-title" content="Quiet Cash">
+<style>
+  :root{
+    --bg:#0e0f11; --panel:#15171b; --muted:#9aa3ad; --text:#e8eef6;
+    --accent:#00e676; --accent2:#00c853; --danger:#ff1744; --warn:#ffb300; --brand:#00e5ff;
+    --edge:#22262b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  /* Splash */
+  .splash{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:#000;z-index:1000;font-weight:900;font-size:3rem;text-align:center;
+    background:linear-gradient(90deg,#ff0057,#ffcd00,#00e5ff,#7cff00,#ff00f7);
+    background-size:400% 400%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    animation:glow 2s ease-in-out infinite, rainbow 6s linear infinite, fadeOut 4s ease forwards;
+    text-shadow:0 0 25px rgba(255,255,255,.4)
+  }
+  @keyframes rainbow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  @keyframes glow{0%,100%{text-shadow:0 0 15px #fff,0 0 40px #ff00f7,0 0 60px #00e5ff}
+                  50%{text-shadow:0 0 25px #fff,0 0 50px #7cff00,0 0 80px #ffcd00}}
+  @keyframes fadeOut{0%{opacity:0;transform:scale(.9)}20%{opacity:1;transform:scale(1.03)}
+                     80%{opacity:1}100%{opacity:0;transform:scale(1.08)}}
+
+  /* App wrapper */
+  .app{max-width:880px;margin:0 auto;padding:16px;display:none}
+  header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px}
+  .title{font-weight:800;letter-spacing:.3px}
+  .actions{display:flex;gap:8px;align-items:center}
+  .btn{
+    background:var(--panel);border:1px solid var(--edge);color:var(--text);
+    padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700;
+    transition:.2s;display:inline-flex;align-items:center;gap:8px
+  }
+  .btn:hover{border-color:#333;transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);color:#04110a;border-color:#0c3}
+  .btn.danger{background:#2a1217;border-color:#4a1a23;color:#ffd8de}
+  .btn.warn{background:#2a220d;border-color:#4a3a12;color:#ffe9b3}
+  .btn.ghost{background:transparent;border-color:#2a2d32}
+
+  /* Grid cards */
+  .grid{display:grid;gap:12px}
+  @media(min-width:720px){ .grid{grid-template-columns:1.3fr .7fr} }
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:14px}
+  .card h3{margin:0 0 10px;font-size:1rem;color:#cdd6df;font-weight:700}
+  .metric{font-size:28px;font-weight:900}
+  .muted{color:var(--muted)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* Tables / lists */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{display:flex;justify-content:space-between;align-items:center;background:#101215;border:1px solid #1e2329;border-radius:12px;padding:10px}
+  .item .meta{font-size:.86rem;color:var(--muted)}
+  .badge{padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:800}
+  .badge.in{background:#0b2b20;color:#9effc9}
+  .badge.out{background:#2a1414;color:#ffc7c7}
+
+  /* Loss bar */
+  .bar{height:12px;border-radius:999px;background:#1a1f25;border:1px solid #2a2f36;overflow:hidden}
+  .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00e676,#ffb300,#ff1744)}
+
+  /* Tabs */
+  .tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .tab{padding:8px 12px;border-radius:10px;border:1px solid var(--edge);background:#121419;cursor:pointer}
+  .tab.active{border-color:#2d9b78;background:#0f1714}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:999}
+  .sheet{width:100%;max-width:640px;background:var(--panel);border-top-left-radius:18px;border-top-right-radius:18px;border:1px solid var(--edge);padding:16px}
+  .sheet h3{margin:0 0 10px}
+  .grid2{display:grid;gap:10px}
+  @media(min-width:560px){.grid2{grid-template-columns:1fr 1fr}}
+  label{font-size:.88rem;color:#cfd7e0}
+  input,select,textarea{
+    width:100%;padding:12px;border-radius:12px;border:1px solid #27303a;background:#0f1216;color:var(--text);
+    font-size:1rem
+  }
+
+  /* Lock */
+  .lock{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,#08090b,#0d0f13);z-index:900}
+  .lock .panel{width:92%;max-width:420px;background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:20px;text-align:center}
+  .pin{letter-spacing:4px;text-align:center}
+
+  .note{font-size:.85rem;color:var(--muted)}
+  .small{font-size:.9rem}
+  canvas{max-height:260px}
+  .hidden-file{display:none}
+</style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2590184626202247"
+     crossorigin="anonymous"></script>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* full viewport height */
+    margin: 0;
+  }
+  #app {
+    flex: 1; /* app takes up available space */
+  }
+  footer {
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+    color: #666;
+    background: #f9f9f9; /* optional light background */
+    border-top: 1px solid #ddd; /* subtle line */
+  }
+  footer a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #666;
+  }
+  footer a:hover {
+    color: #000;
+  }
+</style>
+<meta name="verify-admitad" content="bb8f65e9e7" />
+</head>
+<body>
+
+<!-- Splash -->
+<div class="splash">KAYIZZI’S 🧠</div>
+
+<!-- Lock Screen -->
+<div id="lock" class="lock">
+  <div class="panel">
+    <h2>🔒 Enter Password</h2>
+    <p class="note" id="lockNote">Tip: set a password in Settings.</p>
+    <input id="lockPin" class="pin" placeholder="••••" maxlength="12" type="password"/>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="unlockBtn">Unlock</button>
+      <button class="btn ghost" id="forgotBtn">Forgot?</button>
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <header>
+    <div class="title">💰 Quiet Cash</div>
+    <div class="actions">
+      <button class="btn" id="btnAdd">➕ Add</button>
+      <button class="btn" id="btnHistory">📋 History</button>
+      <button class="btn" id="btnReports">📊 Reports</button>
+      <button class="btn" id="btnExport">📂 Export</button>
+      <button class="btn primary" onclick="window.location.href='savings.html'">💡 Savings</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="grid">
+    <div class="card">
+      <h3>Current Balance</h3>
+      <div class="metric"><span id="balance">UGX 0</span></div>
+      <div class="row small muted" style="margin-top:8px">
+        <div>Cash In: <b id="sumIn">UGX 0</b></div>
+        <div>Cash Out: <b id="sumOut">UGX 0</b></div>
+        <div>Net Cash: <b id="sumNet">UGX 0</b></div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="row small" style="justify-content:space-between">
+          <span>Loss Check</span><span id="lossLabel" class="muted">OK</span>
+        </div>
+        <div class="bar"><span id="lossBar"></span></div>
+        <p class="note" style="margin-top:8px">Loss intensity compares this month’s expenses vs income. Green is safe, red is risk.</p>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #1e2329;margin:12px 0">
+
+      <div class="small muted" style="margin-bottom:8px">Balances</div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div class="muted">This Week (Mon–Today)</div>
+          <div style="font-weight:800;margin-top:6px" id="thisWeekBalance">UGX 0</div>
+          <div class="small muted">In: <span id="thisWeekIn">UGX 0</span> • Out: <span id="thisWeekOut">UGX 0</span></div>
+        </div>
+
+        <div style="flex:1;min-width:160px">
+          <div class="muted">Last Week (Mon–Sun)</div>
+          <div style="font-weight:800;margin-top:6px" id="lastWeekBalance">UGX 0</div>
+          <div class="small muted">In: <span id="lastWeekIn">UGX 0</span> • Out: <span id="lastWeekOut">UGX 0</span></div>
+        </div>
+
+        <div style="flex:1;min-width:160px">
+          <div class="muted">This Month</div>
+          <div style="font-weight:800;margin-top:6px" id="thisMonthBalance">UGX 0</div>
+          <div class="small muted">In: <span id="thisMonthIn">UGX 0</span> • Out: <span id="thisMonthOut">UGX 0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Today’s Transactions</h3>
+      <div class="list" id="todayList"></div>
+      <p class="note" id="noToday">No transactions today.</p>
+    </div>
+
+    <div class="card">
+      <h3>Weekly Cash Flow (Last 7 Days)</h3>
+      <canvas id="weeklyChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Top 3 Days This Month</h3>
+      <div class="list" id="top3"></div>
+      <p class="note" id="noTop">No data this month yet.</p>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card" style="margin-top:14px">
+    <h3>History</h3>
+    <div class="row" style="gap:8px;align-items:center;margin-bottom:6px">
+      <input id="search" placeholder="Search reason or date…"/>
+      <select id="filterType">
+        <option value="">All</option>
+        <option value="in">Cash In</option>
+        <option value="out">Cash Out</option>
+      </select>
+    </div>
+    <div class="list" id="historyList"></div>
+    <p class="note" id="noHistory">Nothing here yet. Add your first transaction.</p>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="card" style="margin-top:14px">
+    <h3>Reports</h3>
+    <div class="tabs">
+      <button class="tab active" data-range="daily">Daily</button>
+      <button class="tab" data-range="weekly">Weekly</button>
+      <button class="tab" data-range="monthly">Monthly</button>
+    </div>
+    <div style="margin-top:10px">
+      <canvas id="reportChart"></canvas>
+    </div>
+    <p class="note">Pie chart groups by <b>reason</b>. Green = income, Red = expense.</p>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="card" style="margin-top:14px">
+    <h3>Settings</h3>
+    <div class="row">
+      <button class="btn" id="btnChangePin">Change Password</button>
+      <button class="btn primary" onclick="window.location.href='loan.html'">📑 Loan Tracker</button>
+      <button class="btn ghost" id="btnAbout">About</button>
+      <button class="btn warn" id="btnClear">Clear Data</button>
+      <button class="btn" id="btnRestore">Restore (Import JSON)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TRANSACTION MODAL -->
+<div class="modal" id="txModal">
+  <div class="sheet">
+    <h3>Add Transaction</h3>
+    <div class="grid2">
+      <div>
+        <label>Type</label>
+        <select id="txType">
+          <option value="in">Cash In</option>
+          <option value="out">Cash Out</option>
+        </select>
+      </div>
+      <div>
+        <label>Amount (UGX)</label>
+        <input id="txAmount" type="number" inputmode="numeric" placeholder="e.g. 5000"/>
+      </div>
+      <div style="grid-column:1/-1">
+        <label>Reason</label>
+        <input id="txReason" placeholder="e.g. transport, food, salary…"/>
+      </div>
+      <div>
+        <label>Date</label>
+        <input id="txDate" type="date"/>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" id="txSave">Save</button>
+      <button class="btn ghost" id="txClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden import input -->
+<input type="file" id="importFile" accept="application/json" class="hidden-file" />
+
+<script>
+/* Quiet Cash — full single-file app.
+   (Your existing header/comments...) */
+
+/* -------------------- Storage & State -------------------- */
+
+/* Primary storage key used going forward */
+const PRIMARY_KEY = 'qc_data';
+
+/* Common legacy keys to check (add more if you remember a custom name you used previously) */
+const LEGACY_KEYS = [
+  'quiet_cash',
+  'quietcash',
+  'quietCash',
+  'QuietCashData',
+  'quiet-cash-data',
+  'qc_data',
+  'qc-backup',
+  'quietcash_data',
+  'quietcash_backup',
+  'quiet.cash',
+  'quiet-cash'
+];
+
+/* -------------------- Analytics (GA4) -------------------- */
+/* Measurement ID provided */
+const ANALYTICS_ID = 'G-L4MT65TZ1Z';
+
+/* Minimal GA4 loader + event queue */
+(function initAnalytics(){
+  // load gtag script
+  if(!ANALYTICS_ID) return;
+  // create dataLayer if absent
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+
+  // configure gtag if not done
+  gtag('js', new Date());
+  gtag('config', ANALYTICS_ID, { 'send_page_view': true });
+
+  // inject script tag (non-blocking)
+  if(!document.querySelector('script[data-quietcash-gtag]')){
+    const s = document.createElement('script');
+    s.async = true;
+    s.setAttribute('data-quietcash-gtag','true');
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${ANALYTICS_ID}`;
+    document.head.appendChild(s);
+  }
+})();
+
+/* helper to send analytics safely (no-op if gtag missing) */
+function sendAnalytics(eventName, params){
+  try{
+    if(window.gtag){
+      window.gtag('event', eventName, params || {});
+    } else if(window.dataLayer){
+      window.dataLayer.push({ event: eventName, ...params });
+    }
+  }catch(e){
+    console.warn('Analytics send failed', e);
+  }
+}
+
+/* convenience: detect loan-like reason words */
+function isLoanReason(reason){
+  if(!reason) return false;
+  const r = reason.toLowerCase();
+  const loanWords = ['loan','borrow','lend','repay','repayment','advance','credit'];
+  return loanWords.some(w => r.includes(w));
+}
+
+/* -------------------- store helper with migration attempt -------------------- */
+const store = {
+  get(){
+    // Try primary key first
+    let raw = localStorage.getItem(PRIMARY_KEY);
+    if(raw){
+      try{ return JSON.parse(raw); }catch(e){}
+    }
+
+    // If primary missing or invalid, search legacy keys in current origin's localStorage
+    for(const k of LEGACY_KEYS){
+      if(k === PRIMARY_KEY) continue;
+      const v = localStorage.getItem(k);
+      if(v){
+        try{
+          const parsed = JSON.parse(v);
+          // best-effort validation (must be object with tx array)
+          if(parsed && typeof parsed === 'object' && Array.isArray(parsed.tx)){
+            // migrate into primary
+            localStorage.setItem(PRIMARY_KEY, JSON.stringify(parsed));
+            // Optionally keep the old key (no deletion). We'll also mark migration.
+            console.info('QuietCash: migrated data from legacy key:', k);
+            alert('Quiet Cash: found data stored under "'+k+'" — automatically migrated it into the app.');
+            // analytics: report migration (non-identifying)
+            sendAnalytics('data_migrated', { legacy_key: k, count: parsed.tx.length });
+            return parsed;
+          }
+        }catch(e){ /* ignore parse errors */ }
+      }
+    }
+
+    // nothing found — return default structure
+    return { tx: [], premium: false, pin: null };
+  },
+  set(d){ localStorage.setItem(PRIMARY_KEY, JSON.stringify(d)) }
+};
+
+let data = store.get();
+
+/* -------------------- Helpers -------------------- */
+const UGX = n => 'UGX ' + (Number(n)||0).toLocaleString('en-UG');
+const todayISO = () => new Date().toISOString().slice(0,10);
+const parseDate = d => new Date(d+'T00:00:00');
+const fmtDateTime = ts => new Date(ts).toLocaleString();
+
+function tryBind(id, fn){
+  const el = document.getElementById(id);
+  if(el) el.onclick = fn;
+}
+
+/* -------------------- Lock Screen -------------------- */
+const splashEl = document.querySelector('.splash');
+const appEl = document.getElementById('app');
+const lockEl = document.getElementById('lock');
+const lockPin = document.getElementById('lockPin');
+const unlockBtn = document.getElementById('unlockBtn');
+const forgotBtn = document.getElementById('forgotBtn');
+const lockNote = document.getElementById('lockNote');
+
+setTimeout(()=>{ // after splash
+  if(splashEl) splashEl.style.display='none';
+  if(data.pin){ if(lockNote) lockNote.textContent='Enter your password to access Quiet Cash.'; if(lockEl) lockEl.style.display='flex'; }
+  else { if(appEl) appEl.style.display='block'; }
+}, 4000);
+
+if(unlockBtn){
+  unlockBtn.onclick = () => {
+    const pin = lockPin.value.trim();
+    if(!pin){ alert('Enter password'); return; }
+    if(pin === data.pin){ if(lockEl) lockEl.style.display='none'; if(appEl) appEl.style.display='block'; lockPin.value=''; }
+    else alert('Wrong password');
+  };
+}
+if(forgotBtn) forgotBtn.onclick = ()=> alert('Password reset not available offline.\nUse your current password or Clear Data (will require password).');
+
+/* -------------------- Elements -------------------- */
+const balanceEl = document.getElementById('balance');
+const sumInEl = document.getElementById('sumIn');
+const sumOutEl = document.getElementById('sumOut');
+const sumNetEl = document.getElementById('sumNet');
+const lossBar = document.getElementById('lossBar');
+const lossLabel = document.getElementById('lossLabel');
+const todayList = document.getElementById('todayList');
+const noToday = document.getElementById('noToday');
+const top3El = document.getElementById('top3');
+const noTop = document.getElementById('noTop');
+const historyList = document.getElementById('historyList');
+const noHistory = document.getElementById('noHistory');
+const searchEl = document.getElementById('search');
+const filterTypeEl = document.getElementById('filterType');
+
+/* Buttons safe binding */
+tryBind('btnAdd', ()=> openTxModal());
+tryBind('btnHistory', ()=> window.scrollTo({top:document.body.scrollHeight/3, behavior:'smooth'}));
+tryBind('btnReports', ()=> document.getElementById('reportChart').scrollIntoView({behavior:'smooth'}));
+tryBind('btnExport', ()=> exportMenu());
+// other binds
+tryBind('btnChangePin', ()=> changePin());
+tryBind('btnAbout', ()=> alert('Quiet Cash\nVersion 1.0\nOffline-first money tracker.'));
+tryBind('btnClear', ()=> clearAll());
+tryBind('btnRestore', ()=> triggerImport());
+
+/* Search/filter */
+if(searchEl) searchEl.oninput = renderHistory;
+if(filterTypeEl) filterTypeEl.onchange = renderHistory;
+
+/* Modal */
+const txModal = document.getElementById('txModal');
+const txType = document.getElementById('txType');
+const txAmount = document.getElementById('txAmount');
+const txReason = document.getElementById('txReason');
+const txDate = document.getElementById('txDate');
+if(document.getElementById('txClose')) document.getElementById('txClose').onclick = ()=> { if(txModal) txModal.style.display='none'; };
+if(document.getElementById('txSave')) document.getElementById('txSave').onclick = saveTx;
+window.addEventListener('click', e=>{ if(e.target===txModal) txModal.style.display='none'; });
+
+function openTxModal(){
+  if(txType) txType.value='in';
+  if(txAmount) txAmount.value='';
+  if(txReason) txReason.value='';
+  if(txDate) txDate.value=todayISO();
+  if(txModal) txModal.style.display='flex';
+}
+
+/* -------------------- Data Ops -------------------- */
+function addTx(entry){
+  data.tx.push(entry);
+  store.set(data);
+
+  // analytics: transaction added
+  sendAnalytics('transaction_saved', {
+    value: Math.abs(entry.amount),
+    transaction_type: entry.type || (entry.amount>0?'in':'out'),
+    reason: entry.reason || '',
+    date: entry.date || todayISO(),
+    loan: isLoanReason(entry.reason) ? 1 : 0
+  });
+
+  // If this looks like a loan, send specialized event
+  if(isLoanReason(entry.reason)){
+    sendAnalytics('loan_recorded', {
+      amount: Math.abs(entry.amount),
+      reason: entry.reason || '',
+      date: entry.date || todayISO()
+    });
+  }
+}
+
+function delTx(id){
+  const t = data.tx.find(tt=>tt.id===id);
+  data.tx = data.tx.filter(t=> t.id!==id);
+  store.set(data);
+
+  // analytics: transaction deleted
+  sendAnalytics('transaction_deleted', {
+    id,
+    value: t ? Math.abs(t.amount) : undefined,
+    transaction_type: t ? (t.amount>0?'in':'out') : undefined,
+    reason: t ? t.reason : undefined
+  });
+}
+
+/* -------------------- Save Tx -------------------- */
+function saveTx(){
+  const type = txType.value;
+  const amount = Number(txAmount.value);
+  const reason = (txReason.value || '').trim();
+  const date = txDate.value || todayISO();
+
+  if(!amount || amount<=0){ alert('Enter a valid amount'); return; }
+  if(!reason){ alert('Enter a reason'); return; }
+
+  const signedAmount = type==='in' ? amount : -amount;
+  addTx({ id:cryptoRandom(), type, amount:signedAmount, reason, date, ts: Date.now() });
+  if(txModal) txModal.style.display='none';
+  renderAll();
+
+  // extra analytics: user action to save (already sent in addTx but record UI action)
+  sendAnalytics('save_button_clicked', { amount: amount, type });
+}
+
+/* -------------------- Rendering -------------------- */
+function renderAll(){
+  renderSummary();
+  renderToday();
+  renderTop3();
+  renderHistory();
+  renderWeeklyChart();
+  renderReportChart(currentRange);
+  calculateBalances(data.tx);
+}
+
+function renderSummary(){
+  const sumIn = data.tx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const sumOut = Math.abs(data.tx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  const net = sumIn - sumOut;
+  if(balanceEl) balanceEl.textContent = UGX(net);
+  if(sumInEl) sumInEl.textContent = UGX(sumIn);
+  if(sumOutEl) sumOutEl.textContent = UGX(sumOut);
+  if(sumNetEl) sumNetEl.textContent = UGX(net);
+
+  // Loss check: ratio expense/income current month
+  const m = new Date().toISOString().slice(0,7); // YYYY-MM
+  const monthTx = data.tx.filter(t=> (t.date||'').startsWith(m));
+  const mIn = monthTx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const mOut = Math.abs(monthTx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  const ratio = mIn>0 ? Math.min(1, mOut/mIn) : (mOut>0 ? 1 : 0);
+  const pct = Math.round(ratio*100);
+  if(lossBar) lossBar.style.width = pct + '%';
+  let label = 'OK';
+  if (ratio < .4) { label='Safe'; if(lossLabel) lossLabel.style.color='#9effc9'; }
+  else if (ratio < .75) { label='Watch'; if(lossLabel) lossLabel.style.color='#ffe9b3'; }
+  else { label='Risk'; if(lossLabel) lossLabel.style.color='#ffc7c7'; }
+  if(lossLabel) lossLabel.textContent = `${label} • ${pct}%`;
+}
+
+function renderToday(){
+  const iso = todayISO();
+  const list = data.tx.filter(t=>t.date===iso).sort((a,b)=>b.ts-a.ts);
+  if(!todayList) return;
+  todayList.innerHTML='';
+  if(!list.length){ if(noToday) noToday.style.display='block'; return; }
+  if(noToday) noToday.style.display='none';
+  list.forEach(t=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div>
+        <div>${t.amount>0?'⬆️':'⬇️'} <b>${UGX(Math.abs(t.amount))}</b> — ${escapeHTML(t.reason)}</div>
+        <div class="meta">${t.date}</div>
+      </div>
+      <span class="badge ${t.amount>0?'in':'out'}">${t.amount>0?'IN':'OUT'}</span>
+    `;
+    todayList.appendChild(el);
+  });
+}
+
+function renderTop3(){
+  const ym = new Date().toISOString().slice(0,7);
+  const map = {};
+  data.tx.filter(t=>(t.date||'').startsWith(ym)).forEach(t=>{
+    map[t.date] = (map[t.date]||0) + t.amount;
+  });
+  const arr = Object.entries(map).map(([d,v])=>({date:d,net:v}))
+              .sort((a,b)=>Math.abs(b.net)-Math.abs(a.net)).slice(0,3);
+  if(!top3El) return;
+  top3El.innerHTML='';
+  if(!arr.length){ if(noTop) noTop.style.display='block'; return; }
+  if(noTop) noTop.style.display='none';
+  arr.forEach(d=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div><b>${d.date}</b> — Net: <b>${UGX(d.net)}</b></div>
+      <span class="badge ${d.net>=0?'in':'out'}">${d.net>=0?'NET+' :'NET-'}</span>
+    `;
+    top3El.appendChild(el);
+  });
+}
+
+function renderHistory(){
+  const q = (searchEl && searchEl.value || '').toLowerCase();
+  const f = filterTypeEl && filterTypeEl.value;
+  const list = data.tx
+    .filter(t => (!f || (f==='in'?t.amount>0:t.amount<0)))
+    .filter(t => !q || (t.reason.toLowerCase().includes(q) || (t.date||'').includes(q)))
+    .sort((a,b)=>b.ts-a.ts);
+
+  if(!historyList) return;
+  historyList.innerHTML='';
+  if(!list.length){ if(noHistory) noHistory.style.display='block'; return; }
+  if(noHistory) noHistory.style.display='none';
+
+  list.forEach(t=>{
+    const el = document.createElement('div');
+    el.className='item';
+    el.innerHTML = `
+      <div>
+        <div>${t.amount>0?'⬆️':'⬇️'} <b>${UGX(Math.abs(t.amount))}</b> — ${escapeHTML(t.reason)}</div>
+        <div class="meta">${t.date} • ${fmtDateTime(t.ts)}</div>
+      </div>
+      <div class="row">
+        <span class="badge ${t.amount>0?'in':'out'}">${t.amount>0?'IN':'OUT'}</span>
+        <button class="btn danger small" data-del="${t.id}">Delete</button>
+      </div>
+    `;
+    historyList.appendChild(el);
+  });
+
+  // Bind deletes
+  historyList.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(confirm('Delete this transaction?')){ delTx(btn.getAttribute('data-del')); renderAll(); }
+    }
+  });
+}
+
+/* -------------------- Weekly Chart -------------------- */
+let weeklyChart;
+function renderWeeklyChart(){
+  const labels=[]; const vals=[];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const iso = d.toISOString().slice(0,10);
+    labels.push(iso.slice(5)); // MM-DD
+    const sum = data.tx.filter(t=>t.date===iso).reduce((a,b)=>a+b.amount,0);
+    vals.push(sum);
+  }
+  const ctx = document.getElementById('weeklyChart') && document.getElementById('weeklyChart').getContext('2d');
+  if(!ctx) return;
+  if(weeklyChart) weeklyChart.destroy();
+  weeklyChart = new Chart(ctx,{
+    type:'bar',
+    data:{ labels, datasets:[{label:'Net UGX', data:vals}]},
+    options:{ scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+/* -------------------- Reports Pie by Reason -------------------- */
+let pieChart;
+let currentRange = 'daily';
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentRange = tab.dataset.range;
+    renderReportChart(currentRange);
+  }
+});
+
+function groupByReason(range){
+  const now = new Date();
+  const start = new Date();
+  if(range==='daily'){ start.setHours(0,0,0,0); }
+  if(range==='weekly'){ const day=now.getDay(); start.setDate(now.getDate()-((day+6)%7)); start.setHours(0,0,0,0); } // Monday-start
+  if(range==='monthly'){ start.setDate(1); start.setHours(0,0,0,0); }
+
+  const mapIn = {}, mapOut = {};
+  data.tx.forEach(t=>{
+    const tDate = parseDate(t.date||todayISO());
+    if(tDate>=start && tDate<=now){
+      const key = t.reason || (t.amount>0?'Income':'Expense');
+      if(t.amount>0) mapIn[key]=(mapIn[key]||0)+t.amount;
+      else mapOut[key]=(mapOut[key]||0)+Math.abs(t.amount);
+    }
+  });
+
+  const labels = [...new Set([...Object.keys(mapIn),...Object.keys(mapOut)])];
+  const inVals = labels.map(k=> mapIn[k]||0);
+  const outVals = labels.map(k=> mapOut[k]||0);
+  return {labels,inVals,outVals};
+}
+
+function renderReportChart(range){
+  const {labels,inVals,outVals} = groupByReason(range);
+  const netVals = labels.map((_,i)=> inVals[i] - outVals[i]); // positive = net income, negative = net expense
+  const ctx = document.getElementById('reportChart') && document.getElementById('reportChart').getContext('2d');
+  if(!ctx) return;
+  if(pieChart) pieChart.destroy();
+  pieChart = new Chart(ctx,{
+    type:'pie',
+    data:{
+      labels,
+      datasets:[
+        { data: netVals.map(v=> Math.abs(v)) } // display absolute magnitudes per reason
+      ]
+    },
+    options:{
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:'#cfd7e0' } }
+      }
+    }
+  });
+}
+
+/* -------------------- Export / Import -------------------- */
+function exportMenu(){
+  const pick = prompt('Export: type "csv", "pdf", or "json" (backup). Type "import" to restore JSON file.');
+  if(!pick) return;
+  if(pick.toLowerCase()==='csv') exportCSV();
+  else if(pick.toLowerCase()==='pdf') exportPDF();
+  else if(pick.toLowerCase()==='json') exportJSON();
+  else if(pick.toLowerCase()==='import') triggerImport();
+  else alert('Unknown option.');
+}
+
+function exportCSV(){
+  let csv = 'Type,Amount,Reason,Date,CreatedAt\n';
+  data.tx.forEach(t=>{
+    csv += `${t.amount>0?'IN':'OUT'},${Math.abs(t.amount)},${safeCSV(t.reason)},${t.date},${fmtDateTime(t.ts)}\n`;
+  });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='QuietCash.csv'; a.click();
+  URL.revokeObjectURL(url);
+
+  sendAnalytics('export', { format: 'csv', count: data.tx.length });
+}
+
+async function exportPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('Quiet Cash – Export', 40, 44);
+  doc.setFont('helvetica',''); doc.setFontSize(10);
+  doc.text('Date: '+ new Date().toLocaleString(), 40, 62);
+
+  let y=90;
+  doc.setFont('helvetica','bold'); doc.text('Summary',40,y);
+  y+=16; doc.setFont('helvetica','');
+  const sumIn = data.tx.filter(t=>t.amount>0).reduce((a,b)=>a+b.amount,0);
+  const sumOut = Math.abs(data.tx.filter(t=>t.amount<0).reduce((a,b)=>a+b.amount,0));
+  doc.text(`Cash In: ${sumIn.toLocaleString()}`,40,y); y+=14;
+  doc.text(`Cash Out: ${sumOut.toLocaleString()}`,40,y); y+=14;
+  doc.text(`Net: ${(sumIn-sumOut).toLocaleString()}`,40,y); y+=24;
+
+  doc.setFont('helvetica','bold'); doc.text('Transactions',40,y); y+=16; doc.setFont('helvetica','');
+  const rows = data.tx.slice().sort((a,b)=>b.ts-a.ts).slice(0,60); // first 60 rows
+  rows.forEach(t=>{
+    const line = `${t.amount>0?'IN':'OUT'}  UGX ${Math.abs(t.amount).toLocaleString()}  — ${t.reason}  •  ${t.date}`;
+    doc.text(line, 40, y); y+=14; if(y>760){ doc.addPage(); y=60; }
+  });
+
+  doc.save('QuietCash.pdf');
+
+  sendAnalytics('export', { format: 'pdf', count: data.tx.length });
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'QuietCash_backup.json'; a.click();
+  URL.revokeObjectURL(url);
+
+  sendAnalytics('export', { format: 'json', count: data.tx.length });
+}
+
+/* Import helpers */
+const importFileInput = document.getElementById('importFile');
+function triggerImport(){
+  if(importFileInput) importFileInput.click();
+}
+if(importFileInput){
+  importFileInput.onchange = e=>{
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        if(parsed && typeof parsed === 'object' && Array.isArray(parsed.tx)){
+          if(confirm('Import will overwrite current transactions with file contents. Continue?')){
+            data = parsed;
+            store.set(data);
+            renderAll();
+            alert('Import successful.');
+
+            sendAnalytics('import', { count: data.tx.length, source_file: f.name });
+          }
+        } else {
+          alert('Invalid backup file format.');
+        }
+      }catch(err){
+        alert('Invalid JSON file.');
+      } finally {
+        importFileInput.value = '';
+      }
+    };
+    reader.readAsText(f);
+  };
+}
+
+/* -------------------- Clear Data -------------------- */
+function clearAll(){
+  if(!confirm('This will delete ALL data. Continue?')) return;
+  if(data.pin){
+    const p = prompt('Enter password to confirm:');
+    if(p!==data.pin){ alert('Wrong password.'); return; }
+  }
+  data = { tx:[], premium:false, pin:data.pin||null };
+  store.set(data);
+  renderAll();
+  alert('All transactions cleared.');
+
+  sendAnalytics('data_cleared', { by_user: !!data.pin });
+}
+
+/* -------------------- Change & Set Password -------------------- */
+function changePin(){
+  const old = data.pin ? prompt('Enter current password:') : null;
+  if(data.pin && old!==data.pin){ alert('Wrong password'); return; }
+  const np = prompt('Set new password (leave empty to remove):') || '';
+  data.pin = np.trim() || null;
+  store.set(data);
+  alert(data.pin ? 'Password updated.' : 'Password removed.');
+
+  sendAnalytics('pin_changed', { has_pin: !!data.pin });
+}
+
+/* -------------------- Premium placeholder -------------------- */
+function upgradePremium(){
+  alert('Premium costs $1 / UGX (placeholder).\nYou can enable Premium features after payment integration.\nFor now this toggles a local flag.');
+  data.premium = !data.premium;
+  store.set(data);
+  // optional UI hint if present
+  const pn = document.getElementById('premiumNote');
+  if(pn) pn.textContent = data.premium ? 'Premium: ON' : 'Premium unlock placeholder (Stripe/Play Billing later).';
+
+  sendAnalytics('premium_toggled', { premium: data.premium ? 1 : 0 });
+}
+
+/* -------------------- Utilities -------------------- */
+function cryptoRandom(){
+  return Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4);
+}
+function escapeHTML(s){ return (s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) }
+function safeCSV(s){ return `"${(s||'').replace(/"/g,'""')}"` }
+
+/* -------------------- Calculate weekly / last week / month balances -------------------- */
+function calculateBalances(transactions){
+  const today = new Date();
+
+  function getMonday(d){
+    d = new Date(d);
+    const day = d.getDay(); // 0 = Sunday, 1 = Monday
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+
+  const thisMonday = getMonday(today);
+  const lastMonday = new Date(thisMonday);
+  lastMonday.setDate(thisMonday.getDate() - 7);
+  const lastSunday = new Date(thisMonday);
+  lastSunday.setDate(thisMonday.getDate() - 1);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  let thisWeekIn = 0, thisWeekOut = 0;
+  let lastWeekIn = 0, lastWeekOut = 0;
+  let thisMonthIn = 0, thisMonthOut = 0;
+
+  (transactions||[]).forEach(t=>{
+    const tDate = parseDate(t.date||todayISO());
+    const amt = Number(t.amount) || 0;
+
+    if(tDate >= thisMonday && tDate <= today){
+      if(t.amount > 0) thisWeekIn += amt;
+      else thisWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= lastMonday && tDate <= lastSunday){
+      if(t.amount > 0) lastWeekIn += amt;
+      else lastWeekOut += Math.abs(amt);
+    }
+
+    if(tDate >= monthStart && tDate <= today){
+      if(t.amount > 0) thisMonthIn += amt;
+      else thisMonthOut += Math.abs(amt);
+    }
+  });
+
+  const safeSet = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  safeSet('thisWeekIn', UGX(thisWeekIn));
+  safeSet('thisWeekOut', UGX(thisWeekOut));
+  safeSet('thisWeekBalance', UGX(thisWeekIn - thisWeekOut));
+
+  safeSet('lastWeekIn', UGX(lastWeekIn));
+  safeSet('lastWeekOut', UGX(lastWeekOut));
+  safeSet('lastWeekBalance', UGX(lastWeekIn - lastWeekOut));
+
+  safeSet('thisMonthIn', UGX(thisMonthIn));
+  safeSet('thisMonthOut', UGX(thisMonthOut));
+  safeSet('thisMonthBalance', UGX(thisMonthIn - thisMonthOut));
+}
+
+/* -------------------- Init -------------------- */
+renderAll();
+
+/* End of file */
+</script>
+<footer style="text-align:center; margin-top:40px; font-size:14px; color:#666;">
+  <a href="privacy.html">Privacy Policy</a> | 
+  <a href="terms.html">Terms & Conditions</a> | 
+  <a href="guide.html">User Guide</a>
+</footer>
+</body>
+</html>
