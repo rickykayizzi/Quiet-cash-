@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiet Cash | Articles</title>
+  <meta name="description" content="Read articles on saving, expense tracking, budgeting, and smart money habits with Quiet Cash.">
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f8f9fa; color:#333; }
+
+    /* --- Header --- */
+    header {
+      background: #0d6efd;
+      color: white;
+      padding: 1rem;
+    }
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      text-align: center;
+      flex: 1;
+    }
+    .hamburger {
+      font-size: 1.8rem;
+      cursor: pointer;
+      user-select: none;
+      margin-right: 1rem;
+    }
+
+    /* --- Nav --- */
+    nav {
+      display: none;
+      flex-direction: column;
+      background: #0d6efd;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      border-radius: 6px;
+    }
+    nav.show { display: flex; }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0.3rem 0;
+      font-weight: bold;
+    }
+
+    /* --- Page Title --- */
+    .page-title {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+    }
+    .page-title h2 {
+      color:#0d6efd;
+      margin-bottom:0.5rem;
+    }
+
+    /* --- Articles Grid --- */
+    .articles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 1rem auto;
+      padding: 1rem;
+    }
+    .card {
+      background:white;
+      border-radius:8px;
+      overflow:hidden;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card img {
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .card-content {
+      padding:1rem;
+    }
+    .card-content h3 {
+      margin:0 0 0.5rem;
+      color:#0d6efd;
+    }
+    .card-content p {
+      margin:0 0 1rem;
+    }
+    .card-content a {
+      color:#0d6efd;
+      text-decoration:none;
+      font-weight:bold;
+    }
+
+    /* --- Footer --- */
+    footer {
+      background:#222;
+      color:#ccc;
+      text-align:center;
+      padding:1.5rem 1rem;
+      margin-top: 2rem;
+    }
+    footer a { color:#0d6efd; text-decoration:none; margin:0 0.5rem; }
+    footer p { margin:0.5rem 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <span class="hamburger" onclick="toggleMenu()" id="menu-icon">☰</span>
+      <h1>Quiet Cash</h1>
+    </div>
+    <nav id="nav-menu">
+      <a href="index.html">Home</a>
+      <a href="articles.html">Articles</a>
+      <a href="app.html">App</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </nav>
+  </header>
+
+  <!-- Page Title -->
+  <div class="page-title">
+    <h2>Money Tips & Articles</h2>
+    <p>Learn how to track, save, and grow your money smarter every day.</p>
+  </div>
+
+  <!-- Articles Grid -->
+  <section class="articles">
+    <div class="card">
+      <img src="https://images.pexels.com/photos/7689731/pexels-photo-7689731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Budgeting tips" loading="lazy">
+      <div class="card-content">
+        <h3>Daily Savings Made Simple</h3>
+        <p>Discover practical ways to save at least 5,000 UGX each day without stress.</p>
+        <a href="articles/daily-savings.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386426/pexels-photo-4386426.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Track expenses" loading="lazy">
+      <div class="card-content">
+        <h3>How to Track Expenses</h3>
+        <p>Learn the easiest methods to record and understand your daily spending.</p>
+        <a href="articles/track-expenses.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386378/pexels-photo-4386378.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Financial goals" loading="lazy">
+      <div class="card-content">
+        <h3>Set Realistic Goals</h3>
+        <p>Find out how to create financial goals that match your income and lifestyle.</p>
+        <a href="articles/financial-goals.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386395/pexels-photo-4386395.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Smart spending" loading="lazy">
+      <div class="card-content">
+        <h3>Smart Spending Habits</h3>
+        <p>Tips to stretch your money further while avoiding unnecessary expenses.</p>
+        <a href="articles/smart-spending.html">Read More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Quiet Cash. All Rights Reserved.</p>
+    <p>
+      <a href="privacy.html">Privacy Policy</a> | 
+      <a href="terms.html">Terms of Service</a> | 
+      <a href="contact.html">Contact</a>
+    </p>
+    <p>Email: support@quietcash.life</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const nav = document.getElementById("nav-menu");
+      const icon = document.getElementById("menu-icon");
+      nav.classList.toggle("show");
+      icon.textContent = nav.classList.contains("show") ? "✖" : "☰";
+    }
+  </script>
+</body>
+</html>
