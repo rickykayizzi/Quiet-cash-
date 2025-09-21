@@ -3,153 +3,235 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiet Cash | Grow & Track Your Money</title>
-  <meta name="description" content="Quiet Cash helps you track daily expenses, manage income, and grow your cash flow with simple tools and money tips.">
+  <title>Quiet Cash: Track and Grow Your Money</title>
+  <meta name="description" content="Quiet Cash helps you manage your money, track daily expenses, and grow savings with simple tools and tips tailored for Uganda.">
+  <meta name="keywords" content="personal finance tips Uganda, money management, daily savings">
   <style>
-    /* --- Basic Reset --- */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #fafafa; }
+    body { font-family: Arial, sans-serif; margin:0; background:#f8f9fa; color:#333; }
 
-    /* --- Layout --- */
-    header { background: #0d6efd; color: white; padding: 1.5rem; text-align: center; }
-    header h1 { margin-bottom: 0.5rem; }
-    nav a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; }
-
-    .container { width: 90%; max-width: 1000px; margin: 2rem auto; }
-
-    section { margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-    h1, h2 { color: #0d6efd; margin-bottom: 1rem; }
-
-    /* --- Hero Section --- */
-    .hero { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
-    .hero img { flex: 1; max-width: 400px; width: 100%; border-radius: 8px; }
-    .hero-text { flex: 2; }
-    .hero-text ul { margin-top: 0.5rem; }
-    .hero-text li { margin-bottom: 0.4rem; }
-
-    /* --- Articles Grid --- */
-    .articles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-    .article-card { background: #fff; padding: 1rem; border-radius: 8px; border: 1px solid #ddd; transition: transform 0.2s; }
-    .article-card:hover { transform: translateY(-4px); }
-    .article-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; margin-bottom: 0.5rem; }
-    .article-card h3 { margin-bottom: 0.5rem; color: #0d6efd; }
-    .article-card p { font-size: 0.95rem; margin-bottom: 0.5rem; }
-    .article-card a { color: #0d6efd; font-weight: bold; text-decoration: none; }
-
-    /* --- Floating Button --- */
-    .floating-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #28a745;
+    /* --- Header --- */
+    header {
+      background: #0d6efd;
       color: white;
-      padding: 12px 20px;
-      border-radius: 50px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: background 0.3s;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
     }
-    .floating-btn:hover { background: #218838; }
+    header h1 { font-size: 1.5rem; margin:0; }
+    header p { font-size: 0.9rem; opacity: 0.9; margin:0; }
 
-    /* --- Footer --- */
-    footer { text-align: center; padding: 1.5rem; background: #0d6efd; color: white; margin-top: 2rem; }
-    footer a { color: #fff; margin: 0 8px; text-decoration: underline; font-size: 0.9rem; }
+    /* Hamburger */
+    .hamburger {
+      position: absolute;
+      left: 1rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    nav {
+      display: none;
+      flex-direction: column;
+      gap: 0.8rem;
+      background: #0d6efd;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 6px;
+    }
+    nav.show { display: flex; }
+    nav a { color:white; text-decoration:none; font-weight:bold; }
+
+    /* Hero */
+    .hero { text-align:center; padding:2rem 1rem; background:#e9f2ff; }
+    .hero img { max-width:600px; width:100%; height:auto; border-radius:8px; }
+    .hero p { max-width:700px; margin:1rem auto; font-size:1.1rem; line-height:1.6; }
+    .cta-buttons { margin-top:1rem; }
+    .cta-buttons a {
+      display:inline-block; margin:0.5rem; padding:0.75rem 1.5rem;
+      background:#0d6efd; color:white; border-radius:5px; text-decoration:none;
+    }
+
+    /* Content */
+    .content {
+      max-width: 900px; margin: 2rem auto; padding: 1.5rem;
+      background: white; border-radius: 8px;
+    }
+    .content h2 { color:#0d6efd; margin-bottom:1rem; }
+    .content p { margin-bottom:1.5rem; line-height:1.6; }
+
+    /* Article cards */
+    .articles { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; max-width:1100px; margin:2rem auto; padding:1rem; }
+    .card {
+      background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card img { width:100%; height:auto; display:block; }
+    .card-content { padding:1rem; }
+    .card-content h3 { margin:0 0 0.5rem; color:#0d6efd; }
+    .card-content p { margin:0 0 1rem; }
+    .card-content a { color:#0d6efd; text-decoration:none; font-weight:bold; }
+
+    /* Ads */
+    .ad-placeholder { background:#f0f0f0; padding:1rem; border-radius:4px; text-align:center; }
+
+    /* Footer */
+    footer {
+      background:#222; color:#ccc; text-align:center; padding:1.5rem 1rem;
+    }
+    footer a { color:#0d6efd; text-decoration:none; margin:0 0.5rem; }
+    footer p { margin:0.5rem 0; }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <header>
-    <h1>Quiet Cash</h1>
-    <p>Track, Grow & Control Your Money</p>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="tutorial.html">Tutorial</a>
-      <a href="articles.html">Articles</a>
-      <a href="faq.html">FAQ</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-    </nav>
+    <div class="hamburger" onclick="toggleMenu()" id="menu-icon">☰</div>
+    <div>
+      <h1>Quiet Cash</h1>
+      <p>Track, Grow & Control Your Money</p>
+    </div>
   </header>
 
-  <div class="container">
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-text">
-        <h1>Take Control of Your Money</h1>
-        <p>Quiet Cash is your simple, everyday tool for tracking income, expenses, and savings—whether in cash or mobile money. Stop wondering where your money goes, and start making every shilling count.</p>
-        <ul>
-          <li>✔ Track expenses in seconds</li>
-          <li>✔ Auto-categorize your spending</li>
-          <li>✔ Set and achieve savings goals</li>
-          <li>✔ Works for both cash & mobile money</li>
-        </ul>
-      </div>
-      <img src="https://images.pexels.com/photos/4386391/pexels-photo-4386391.jpeg" alt="Expense tracking app demo">
-    </section>
+  <!-- Nav -->
+  <nav id="nav-menu">
+    <a href="index.html">Home</a>
+    <a href="articles.html">Articles</a>
+    <a href="app.html">App</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="privacy.html">Privacy Policy</a>
+  </nav>
 
-    <!-- What is Quiet Cash -->
-    <section>
-      <h2>What is Quiet Cash?</h2>
-      <p>Quiet Cash is designed for people who deal with both <strong>cash and mobile money</strong> daily. In many homes, money slips away quietly—on transport, snacks, airtime, and impulse buys. Our mission is to help you capture those small leaks and build habits that grow your finances over time.</p>
-      <p>With Quiet Cash, you don’t need to be a financial expert. You’ll get <strong>real-time tracking, clear reports, and simple savings tools</strong> that make money management less stressful and more rewarding. Whether you earn daily wages, run a small business, or just want better control over your budget, this is for you.</p>
-      <p>We believe money is not just about numbers—it’s about freedom, peace of mind, and future opportunities. Quiet Cash gives you the visibility and confidence to take charge of your finances, one coin at a time.</p>
-    </section>
+  <!-- Hero -->
+  <section class="hero">
+    <img src="https://images.pexels.com/photos/4386374/pexels-photo-4386374.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Person tracking expenses" loading="lazy">
+    <p>Quiet Cash helps you take control of your daily spending, savings, and long-term financial goals. Whether it’s budgeting your salary, tracking boda-boda fares, or planning weekly savings, our tools make money management simple, practical, and rewarding.</p>
+    <div class="cta-buttons">
+      <a href="articles.html">Read Articles</a>
+      <a href="app.html">Try Tool</a>
+    </div>
+  </section>
 
-    <!-- Articles Section -->
-    <section>
-      <h2>Latest Articles</h2>
-      <div class="articles">
-        <!-- Article 1 -->
-        <div class="article-card">
-          <img src="https://images.pexels.com/photos/3943724/pexels-photo-3943724.jpeg" alt="Saving money tips">
-          <h3><a href="articles/save-more.html">5 Tricks to Save More Every Week</a></h3>
-          <p>Small changes in spending can lead to big savings. Learn how to save without feeling restricted.</p>
-          <a href="articles/save-more.html">Read More →</a>
-        </div>
-
-        <!-- Article 2 -->
-        <div class="article-card">
-          <img src="https://images.pexels.com/photos/4475524/pexels-photo-4475524.jpeg" alt="Cash vs Mobile Money">
-          <h3><a href="articles/cash-vs-mobile.html">Cash vs Mobile Money: Which Works Better?</a></h3>
-          <p>Discover the pros and cons of managing money in cash compared to mobile money wallets.</p>
-          <a href="articles/cash-vs-mobile.html">Read More →</a>
-        </div>
-
-        <!-- Article 3 -->
-        <div class="article-card">
-          <img src="https://images.pexels.com/photos/4386374/pexels-photo-4386374.jpeg" alt="Tracking small expenses notebook">
-          <h3><a href="articles/tracking-small-expenses.html">Why Tracking Small Expenses Matters</a></h3>
-          <p>It's the little things that eat your budget. Here’s how to keep track of them effectively.</p>
-          <a href="articles/tracking-small-expenses.html">Read More →</a>
-        </div>
-
-        <!-- Article 4 -->
-        <div class="article-card">
-          <img src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg" alt="Psychology of spending money">
-          <h3><a href="articles/psychology-of-spending.html">The Psychology of Spending: Why We Buy</a></h3>
-          <p>Understand the hidden triggers behind your spending habits and how to outsmart them.</p>
-          <a href="articles/psychology-of-spending.html">Read More →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Ad Placeholder -->
-    <section style="text-align:center; background:#f4f4f4; padding:20px; border:1px dashed #ccc; margin-top:1rem;">
-      <p>Ad space – Google AdSense will appear here</p>
-    </section>
+  <!-- Ad Placeholder -->
+  <div class="ad-placeholder">
+    <!-- AdSense: Leaderboard 728x90 -->
+    <p>[Ad Placeholder: 728x90]</p>
   </div>
 
-  <!-- Floating Button to App -->
-  <a href="app.html" class="floating-btn">Open Quiet Cash App</a>
+  <!-- Content Expansion -->
+  <section class="content">
+    <h2>Why Track Your Money?</h2>
+    <p>Money often slips away in small amounts without us noticing. A 5,000 UGX (~$1.30) airtime top-up here, a 3,000 UGX (~$0.80) boda-boda ride there, and by the end of the week, you may wonder where half your cash went. Tracking your money gives you the power to see these hidden leaks. With Quiet Cash, you can log daily expenses in just a few seconds, helping you stay aware of your spending patterns. When you know exactly where your cash goes, it becomes easier to adjust your habits and direct more towards your savings goals—whether that’s a new phone, school fees, or starting a small side hustle.</p>
 
+    <h2>Top Tips to Start Today</h2>
+    <p>You don’t need a finance degree to manage money wisely—just a few simple steps. First, set aside at least 10,000 UGX (~$2.60) weekly into savings; this builds discipline and security. Second, track all expenses, even the smallest, so you avoid surprise shortages. Third, reduce impulse spending by carrying only the cash you need for the day. Finally, set realistic targets like saving for a new TV or paying off a small loan, and use Quiet Cash to monitor progress. These small habits can transform your financial journey and give you more peace of mind about the future.</p>
+  </section>
+
+  <!-- Articles -->
+  <section class="articles">
+
+    <!-- New 4 cards -->
+    <div class="card">
+      <img src="https://images.pexels.com/photos/7689731/pexels-photo-7689731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Budgeting tips" loading="lazy">
+      <div class="card-content">
+        <h3>Daily Savings Made Simple</h3>
+        <p>Discover practical ways to save at least 5,000 UGX (~$1.30) each day without stress.</p>
+        <a href="articles/daily-savings.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386426/pexels-photo-4386426.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Track expenses" loading="lazy">
+      <div class="card-content">
+        <h3>How to Track Expenses</h3>
+        <p>Learn the easiest methods to record and understand your daily spending.</p>
+        <a href="articles/track-expenses.html">Read More</a>
+      </div>
+    </div>
+
+    <!-- Ad Placeholder -->
+    <div class="ad-placeholder">
+      <!-- AdSense: Rectangle 300x250 -->
+      <p>[Ad Placeholder: 300x250]</p>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386378/pexels-photo-4386378.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Financial goals" loading="lazy">
+      <div class="card-content">
+        <h3>Set Realistic Goals</h3>
+        <p>Find out how to create financial goals that match your income and lifestyle.</p>
+        <a href="articles/financial-goals.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386395/pexels-photo-4386395.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Smart spending" loading="lazy">
+      <div class="card-content">
+        <h3>Smart Spending Habits</h3>
+        <p>Tips to stretch your money further while avoiding unnecessary expenses.</p>
+        <a href="articles/smart-spending.html">Read More</a>
+      </div>
+    </div>
+
+    <!-- Old 4 cards -->
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386357/pexels-photo-4386357.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cash vs Mobile Money" loading="lazy">
+      <div class="card-content">
+        <h3>Cash vs Mobile Money</h3>
+        <p>Which is better for daily use? Explore pros, cons, and when to use each.</p>
+        <a href="articles/cash-vs-mobile.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386327/pexels-photo-4386327.jpeg?auto=compress&cs=tinysrgb&w=800" alt="5 Tricks to Save More" loading="lazy">
+      <div class="card-content">
+        <h3>5 Tricks to Save More</h3>
+        <p>Simple hacks to increase your savings without cutting essentials.</p>
+        <a href="articles/save-more.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386345/pexels-photo-4386345.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Avoid Money Leaks" loading="lazy">
+      <div class="card-content">
+        <h3>Avoid Money Leaks</h3>
+        <p>Learn how to identify and stop the small expenses draining your wallet.</p>
+        <a href="articles/money-leaks.html">Read More</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <img src="https://images.pexels.com/photos/4386331/pexels-photo-4386331.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Budgeting for Salaries" loading="lazy">
+      <div class="card-content">
+        <h3>Budgeting Your Salary</h3>
+        <p>Maximize your income with a simple step-by-step salary budget plan.</p>
+        <a href="articles/budget-salary.html">Read More</a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Footer -->
   <footer>
-    <p>© 2025 Kayizzi Richard. All rights reserved.</p>
+    <p>&copy; 2025 Quiet Cash. All Rights Reserved.</p>
     <p>
       <a href="privacy.html">Privacy Policy</a> | 
-      <a href="terms.html">Terms & Conditions</a> | 
+      <a href="terms.html">Terms of Service</a> | 
       <a href="contact.html">Contact</a>
     </p>
+    <p>Email: support@quietcash.life</p>
   </footer>
+
+  <script>
+    function toggleMenu() {
+      const nav = document.getElementById("nav-menu");
+      const icon = document.getElementById("menu-icon");
+      nav.classList.toggle("show");
+      icon.textContent = nav.classList.contains("show") ? "✖" : "☰";
+    }
+  </script>
 </body>
 </html>
