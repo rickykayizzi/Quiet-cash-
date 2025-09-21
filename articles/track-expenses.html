@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>How to Track Expenses | Quiet Cash</title>
+  <meta name="description" content="Simple, realistic ways to track everyday expenses in UGX — no stress, no spreadsheets. Learn methods that fit daily life and build steady savings." />
+  <meta name="keywords" content="track expenses uganda, expense tracking, quiet cash, daily spending, UGX budgeting" />
+  <style>
+    /* --- Base / layout (matches site) --- */
+    :root { --brand:#0d6efd; --accent:#28a745; --muted:#666; --bg:#f8f9fa; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#222;line-height:1.7}
+    a{color:var(--brand);text-decoration:none}
+    .container{width:92%;max-width:980px;margin:2rem auto}
+    /* Header */
+    header{background:var(--brand);color:#fff;padding:1rem 1.5rem;display:flex;justify-content:center;align-items:center;position:relative}
+    header h1{font-size:1.35rem;margin:0}
+    header p{font-size:0.9rem;opacity:.95;margin:0}
+    .hamburger{position:absolute;left:1rem;font-size:1.6rem;cursor:pointer;user-select:none}
+    nav{display:none;flex-direction:column;gap:.6rem;background:var(--brand);padding:1rem;margin-top:1rem;border-radius:6px}
+    nav.show{display:flex}
+    nav a{color:#fff;font-weight:700}
+    /* Article box */
+    article{background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .meta{color:var(--muted);font-size:.95rem;margin-bottom:1rem}
+    h1.title{color:var(--brand);margin-bottom:.25rem}
+    img.feature{width:100%;height:auto;border-radius:8px;margin:1rem 0;display:block}
+    h2{color:var(--brand);margin-top:1.25rem;margin-bottom:.6rem}
+    h3{margin-top:.9rem;margin-bottom:.4rem}
+    p{margin-bottom:1rem}
+    .ad{background:#f0f0f0;border-radius:6px;padding:1rem;text-align:center;color:#555;margin:1rem 0}
+    /* step boxes */
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1rem}
+    .step{background:#fafafa;padding:0.9rem;border-radius:6px;border:1px solid #eee}
+    .step h4{margin:0 0 .5rem;color:var(--brand)}
+    /* Related */
+    .related{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1.25rem}
+    .related a{display:block;background:#fff;padding:.8rem;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    /* floating app CTA */
+    .floating{position:fixed;right:18px;bottom:18px;background:var(--accent);color:#fff;padding:12px 18px;border-radius:50px;font-weight:700;box-shadow:0 6px 14px rgba(0,0,0,.12);text-decoration:none}
+    /* footer */
+    footer{background:#222;color:#cfcfcf;text-align:center;padding:1.25rem;margin-top:1.5rem}
+    footer a{color:var(--brand);margin:0 .5rem}
+    /* responsive: keep nav inline and non-covering */
+    @media (max-width:780px){
+      nav{display:none}
+      nav.show{display:flex}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header (unchanged look, hamburger top-left inline menu) -->
+  <header>
+    <div class="hamburger" id="menu-icon" onclick="toggleMenu()">☰</div>
+    <div>
+      <h1>Quiet Cash</h1>
+      <p>Track, Grow & Control Your Money</p>
+    </div>
+  </header>
+
+  <!-- Inline nav (shows under header when hamburger tapped) -->
+  <nav id="nav-menu" aria-label="Main navigation">
+    <a href="/index.html">Home</a>
+    <a href="/articles.html">Articles</a>
+    <a href="/app.html">App</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/privacy.html">Privacy Policy</a>
+  </nav>
+
+  <div class="container">
+    <article>
+      <h1 class="title">How to Track Expenses — Simple, Daily, and Actually Doable</h1>
+      <div class="meta">Published: <strong>September 21, 2025</strong> • Written by: <strong>Kayizzi Richard</strong></div>
+
+      <img class="feature" src="https://images.pexels.com/photos/4386391/pexels-photo-4386391.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Person writing expenses in a notebook" loading="lazy">
+
+      <p>
+        Tracking expenses sounds boring — until you see the numbers. Once you can point to where your money quietly disappears, you can begin to fix it. This guide is written for people who use cash and mobile money every day: market traders, students, mums and dads, small-business owners, and anyone who wants better control over their shillings. No spreadsheets, no complicated rules — just practical methods that fit real life in Uganda.
+      </p>
+
+      <div class="ad">[Ad Placeholder: Leaderboard 728×90]</div>
+
+      <h2>Why tracking is the single best money habit</h2>
+      <p>
+        Most people believe they “know” where their money goes. But memory lies. You may remember big bills (rent, school fees), but the daily small spends — snacks, airtime, odd transport fares — add up fast. Tracking turns fuzzy feelings into clear facts. That clarity reduces stress, stops “money surprise” moments, and helps you decide what to cut or keep.
+      </p>
+
+      <p>
+        Another reason tracking wins: it creates choices. When you log a 2,000 UGX boda-boda ride, you can choose later to walk one day a week and save that amount, or decide it’s worth the convenience. Without tracking, you can’t judge trade-offs.
+      </p>
+
+      <h2>Pick a method — one that you will actually keep using</h2>
+      <p>
+        There are three reliable ways to track expenses: the <strong>notebook</strong>, the <strong>mobile wallet / sub-wallet</strong>, and the <strong>simple app</strong>. Each works; the best one is the one you use every day. Below I show how to implement each so it sticks.
+      </p>
+
+      <div class="steps">
+        <div class="step">
+          <h4>Notebook (low tech, high visibility)</h4>
+          <p>Carry a small notebook. Write date — item — amount. At night, total the day. At the end of the week, add up. This is tactile, quick and you don’t need a phone or data.</p>
+        </div>
+
+        <div class="step">
+          <h4>Mobile wallet sub-account</h4>
+          <p>Create a separate mobile wallet (or a tagged balance) and move money into it for different categories — savings, transport, food. Use transfer notes to track purpose.</p>
+        </div>
+
+        <div class="step">
+          <h4>Simple app (Quiet Cash)</h4>
+          <p>Use Quiet Cash to log expenses: it’s faster than writing and shows trends. Set a daily reminder and categorize spends as you make them.</p>
+        </div>
+      </div>
+
+      <h2>Step-by-step: start tracking in 3 days</h2>
+      <h3>Day 1 — Make tracking tiny and obvious</h3>
+      <p>
+        Buy a pocket notebook or open a note on your phone. For cash people, a small notebook works best — keep it in your wallet. Commit to recording <em>every</em> spend today, even that 500 UGX mandazi. Set a reminder on your phone for evening to sum the day.
+      </p>
+
+      <h3>Day 2 — Categorize simply</h3>
+      <p>
+        Use broad categories: Transport, Food, Airtime, Home, Savings, Other. Don’t overdo it. When you note a spend, write the category next to the amount. Example: “Boda 2,000 — Transport.”
+      </p>
+
+      <h3>Day 3 — Review and adjust</h3>
+      <p>
+        At the end of Day 3, add your totals and look for patterns. Did you spend a lot on single-use snacks? Is airtime higher than expected? Make 1 small change tomorrow (e.g., carry water or avoid the roadside snack seller one time).
+      </p>
+
+      <div class="ad">[Ad Placeholder: Rectangle 300×250]</div>
+
+      <h2>Common tracking mistakes — and how to avoid them</h2>
+      <p>
+        The usual pitfalls are: forgetting to record, being too detailed, and giving up when life gets busy. Avoid them by automating where possible (mobile transfers), keeping it simple, and attaching tracking to an existing routine (after morning tea, for example).
+      </p>
+
+      <h2>How to record when you use both cash and mobile money</h2>
+      <p>
+        Many people in Uganda use both. The trick is a single source of truth: choose one log (notebook or app) and record everything there. For mobile money, write the transfer and the brief note. For cash, write the amount and category. At week’s end, reconcile bank or mobile statements against your log to catch anything missed.
+      </p>
+
+      <h3>Quick example</h3>
+      <p>
+        Say Monday you: paid 10,000 UGX market fare (Transport), bought lunch 5,500 UGX (Food), topped airtime 2,000 UGX (Airtime). Your log shows Transport 10,000; Food 5,500; Airtime 2,000. When Tuesday comes, you can compare and decide if the lunch habit is eating your money or if the transport route is too expensive.
+      </p>
+
+      <h2>How to categorize so the report actually helps</h2>
+      <p>
+        Use categories that match your choices. Examples that work for many people:
+      </p>
+      <ul>
+        <li><strong>Transport</strong> — boda, taxi, fuel</li>
+        <li><strong>Food</strong> — groceries, lunch, snacks</li>
+        <li><strong>Airtime & Data</strong></li>
+        <li><strong>Home</strong> — rent, utilities</li>
+        <li><strong>Savings</strong></li>
+        <li><strong>Business</strong> — stock, supplies (if you run a stall)</li>
+      </ul>
+
+      <h2>Turning the log into action</h2>
+      <p>
+        Tracking is only useful if you act on it. Every week, do a 10-minute review:
+      </p>
+      <ol>
+        <li>Total each category.</li>
+        <li>Compare to last week — what changed?</li>
+        <li>Pick one category to trim by 10% next week.</li>
+        <li>Move the saved amount into a named envelope or savings wallet.</li>
+      </ol>
+
+      <h2>Make it visual (and fun)</h2>
+      <p>
+        Humans respond to visuals. Put your weekly totals in a simple chart on paper, or take a photo of your savings jar each week. Put a sticker on a calendar for every week you track — streaks beat willpower.
+      </p>
+
+      <div class="steps" style="margin-top:1rem">
+        <div class="step">
+          <h4>Quick habit: The Daily 2-minute review</h4>
+          <p>At night, spend 2 minutes entering that day's spends. Do this for 21 days — most people build habit after 3 weeks.</p>
+        </div>
+        <div class="step">
+          <h4>Weekly ritual</h4>
+          <p>Set Sunday evening as your 10-minute finance check: totals, one change, and one reward if you met your target.</p>
+        </div>
+      </div>
+
+      <h2>How Quiet Cash helps (or what to look for in an app)</h2>
+      <p>
+        If you prefer digital: choose an app that lets you quickly add amounts, pick categories, and shows simple weekly/monthly summaries. Quiet Cash focuses on speed: add an expense in two taps, tag it, and forget about it. Look for reminders, and a place to set small savings rules (like “move 5,000 UGX to savings daily”).
+      </p>
+
+      <h2>Case studies — short and real</h2>
+      <h3>Grace — student</h3>
+      <p>
+        Grace tracked her spending for one month. She discovered she was buying snacks every day for 2,500 UGX. Cutting that to twice a week freed 30,000 UGX a month — enough for textbooks.
+      </p>
+
+      <h3>Sam — boda rider with irregular income</h3>
+      <p>
+        Sam used a notebook to record cash and transfers. By tracking, he realised midday tea purchases added up. He saved that money into a maintenance fund for his bike — no more surprise repairs.
+      </p>
+
+      <div class="ad">[Ad Placeholder: responsive]</div>
+
+      <h2>What to do when life gets messy</h2>
+      <p>
+        Some weeks are chaotic. You might miss entries. Don’t panic: record the week in one go — estimate as best you can from receipts, messages, and memory. The purpose is trend awareness, not perfect accounting.
+      </p>
+
+      <h2>Advanced tip: track by purpose, not just category</h2>
+      <p>
+        Add a small tag for purpose: Daily, Business, One-off. This helps when you want to separate personal spending from money that goes through your hands but belongs to the business.
+      </p>
+
+      <h2>Checklist to start tracking today</h2>
+      <ol>
+        <li>Choose your tool (notebook, mobile wallet, or app).</li>
+        <li>Create 4–6 categories that match your life.</li>
+        <li>Record every spend for 7 days — no judgment, just data.</li>
+        <li>Do a weekly 10-minute review and pick one action.</li>
+        <li>Keep it visible — jar, screenshot, or calendar streaks.</li>
+      </ol>
+
+      <h2>Keep it catchy — small wins make the habit</h2>
+      <p>
+        Make tracking feel good: reward yourself when you hit a streak (a small treat once a month), share progress with a friend, or post the photo of your jar (privacy-friendly) to stay motivated. The goal is consistency, not perfection.
+      </p>
+
+      <h2>Related articles</h2>
+      <div class="related">
+        <a href="/articles/daily-savings.html">Daily Savings Made Simple</a>
+        <a href="/articles/save-more.html">5 Tricks to Save More Every Week</a>
+        <a href="/articles/psychology-of-small-change.html">The Psychology of Small Change</a>
+        <a href="/articles/cash-vs-mobile.html">Cash vs Mobile Money: Which Works Better?</a>
+      </div>
+
+      <p style="margin-top:1rem">
+        If you want, download a simple tracker template or ask for a printable savings calendar — I can make one specifically sized for Uganda’s typical daily routines. Start today: open your notebook or app and log the next spend you make.
+      </p>
+    </article>
+
+    <div class="ad" aria-hidden="true" style="margin-top:1rem">[Ad Placeholder: small responsive]</div>
+  </div>
+
+  <a class="floating" href="/app.html">Open Quiet Cash App</a>
+
+  <footer>
+    <p>&copy; 2025 Kayizzi Richard. All Rights Reserved.</p>
+    <p>
+      <a href="/privacy.html">Privacy Policy</a> |
+      <a href="/terms.html">Terms of Service</a> |
+      <a href="/contact.html">Contact</a>
+    </p>
+    <p>Email: support@quietcash.life</p>
+  </footer>
+
+  <script>
+    // Toggle inline nav (hamburger top-left). Menu slides down inline, not overlaying page.
+    function toggleMenu() {
+      const nav = document.getElementById('nav-menu');
+      const icon = document.getElementById('menu-icon');
+      if (!nav) return;
+      nav.classList.toggle('show');
+      if (icon) icon.textContent = nav.classList.contains('show') ? '✖' : '☰';
+    }
+
+    // Auto-collapse the nav when a navigation link is clicked (mobile friendly)
+    document.addEventListener('click', function(e){
+      const nav = document.getElementById('nav-menu');
+      const icon = document.getElementById('menu-icon');
+      if (!nav) return;
+      if (nav.classList.contains('show') && e.target.tagName === 'A' && nav.contains(e.target)) {
+        nav.classList.remove('show');
+        if (icon) icon.textContent = '☰';
+      }
+    });
+  </script>
+</body>
+</html>
