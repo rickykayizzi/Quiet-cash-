@@ -3,83 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiet Cash: Track and Grow Your Money</title>
-  <meta name="description" content="Quiet Cash helps you manage your money, track daily expenses, and grow savings with simple tools and tips tailored for Uganda.">
-  <meta name="keywords" content="personal finance tips Uganda, money management, daily savings">
+  <title>Quiet Cash: Where Your Money Speaks</title>
+  <meta name="description" content="Quiet Cash isn’t just an app. It’s a story about your money, your choices, and the power you hold to track, save, and grow every coin. Discover practical tools and insights to take control of your finances in Uganda.">
+  <meta name="keywords" content="personal finance Uganda, daily money tracking, savings tips, financial awareness">
+
   <style>
-    body { font-family: Arial, sans-serif; margin:0; background:#f8f9fa; color:#333; }
+    /* --- Fonts & Base --- */
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:#f3f4f6; color:#222; }
+    a { text-decoration:none; }
 
     /* --- Header --- */
-    header {
-      background: #0d6efd;
-      color: white;
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    header h1 { font-size: 1.5rem; margin:0; }
-    header p { font-size: 0.9rem; opacity: 0.9; margin:0; }
+    header { background:#1a1f71; color:white; padding:1.2rem 1.5rem; display:flex; justify-content:center; align-items:center; position:relative; }
+    header h1 { font-family: Georgia, serif; font-size:1.8rem; margin:0; }
+    header p { font-size:1rem; opacity:0.85; margin:0; font-style:italic; }
 
-    /* Hamburger */
-    .hamburger {
-      position: absolute;
-      left: 1rem;
-      font-size: 1.8rem;
-      cursor: pointer;
-      user-select: none;
-    }
+    .hamburger { position:absolute; left:1rem; font-size:1.9rem; cursor:pointer; user-select:none; }
 
-    nav {
-      display: none;
-      flex-direction: column;
-      gap: 0.8rem;
-      background: #0d6efd;
-      padding: 1rem;
-      margin-top: 1rem;
-      border-radius: 6px;
-    }
-    nav.show { display: flex; }
-    nav a { color:white; text-decoration:none; font-weight:bold; }
+    nav { display:none; flex-direction:column; gap:0.8rem; background:#1a1f71; padding:1rem; margin-top:1rem; border-radius:6px; }
+    nav.show { display:flex; }
+    nav a { color:white; font-weight:bold; }
 
-    /* Hero */
-    .hero { text-align:center; padding:2rem 1rem; background:#e9f2ff; }
-    .hero img { max-width:600px; width:100%; height:auto; border-radius:8px; }
-    .hero p { max-width:700px; margin:1rem auto; font-size:1.1rem; line-height:1.6; }
-    .cta-buttons { margin-top:1rem; }
-    .cta-buttons a {
-      display:inline-block; margin:0.5rem; padding:0.75rem 1.5rem;
-      background:#0d6efd; color:white; border-radius:5px; text-decoration:none;
-    }
+    /* --- Hero --- */
+    .hero { text-align:center; padding:3rem 1rem; background:linear-gradient(180deg,#e9f2ff 0%,#f3f4f6 100%); }
+    .hero img { max-width:700px; width:100%; height:auto; border-radius:8px; margin-bottom:1.5rem; }
+    .hero h2 { font-family: Georgia, serif; font-size:2rem; color:#1a1f71; margin-bottom:1rem; }
+    .hero p { max-width:720px; margin:0 auto 1.5rem; font-size:1.15rem; line-height:1.7; color:#333; }
+    .cta-buttons a { display:inline-block; margin:0.5rem; padding:0.8rem 1.6rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; transition:0.3s; }
+    .cta-buttons a:hover { background:#162059; }
 
-    /* Content */
-    .content {
-      max-width: 900px; margin: 2rem auto; padding: 1.5rem;
-      background: white; border-radius: 8px;
-    }
-    .content h2 { color:#0d6efd; margin-bottom:1rem; }
-    .content p { margin-bottom:1.5rem; line-height:1.6; }
+    /* --- Featured Story --- */
+    .featured-story { max-width:900px; margin:2rem auto; background:#fff8e1; padding:2rem; border-radius:8px; box-shadow:0 3px 12px rgba(0,0,0,0.1); }
+    .featured-story p { font-size:1.1rem; line-height:1.7; margin-bottom:1.5rem; }
+    .featured-story blockquote { border-left:6px solid #f39c12; padding-left:15px; font-style:italic; color:#333; margin:20px 0; }
+    .featured-story a { display:inline-block; margin-top:1rem; padding:0.8rem 1.6rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; }
 
-    /* Article cards */
+    /* --- Content Section --- */
+    .content { max-width:900px; margin:2rem auto; padding:2rem; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .content h2 { color:#1a1f71; margin-bottom:1rem; font-family: Georgia, serif; }
+    .content p { margin-bottom:1.5rem; line-height:1.7; }
+
+    .highlight { background:#fff4c2; font-weight:bold; padding:2px 4px; border-radius:2px; }
+
+    /* --- Articles Grid --- */
     .articles { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; max-width:1100px; margin:2rem auto; padding:1rem; }
-    .card {
-      background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    }
+    .card { background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:0.3s; }
+    .card:hover { transform:translateY(-4px); box-shadow:0 6px 15px rgba(0,0,0,0.12); }
     .card img { width:100%; height:auto; display:block; }
     .card-content { padding:1rem; }
-    .card-content h3 { margin:0 0 0.5rem; color:#0d6efd; }
-    .card-content p { margin:0 0 1rem; }
-    .card-content a { color:#0d6efd; text-decoration:none; font-weight:bold; }
+    .card-content h3 { margin:0 0 0.5rem; color:#1a1f71; font-family: Georgia, serif; }
+    .card-content p { margin:0 0 1rem; line-height:1.6; }
+    .card-content a { color:#1a1f71; font-weight:bold; }
 
-    /* Ads */
-    .ad-placeholder { background:#f0f0f0; padding:1rem; border-radius:4px; text-align:center; }
+    /* --- Ads --- */
+    .ad-placeholder { background:#f0f0f0; padding:1rem; border-radius:4px; text-align:center; margin:2rem 0; }
 
-    /* Footer */
-    footer {
-      background:#222; color:#ccc; text-align:center; padding:1.5rem 1rem;
-    }
-    footer a { color:#0d6efd; text-decoration:none; margin:0 0.5rem; }
+    /* --- Footer --- */
+    footer { background:#222; color:#ccc; text-align:center; padding:2rem 1rem; }
+    footer a { color:#1a1f71; text-decoration:none; margin:0 0.5rem; }
     footer p { margin:0.5rem 0; }
   </style>
 </head>
@@ -90,7 +70,7 @@
     <div class="hamburger" onclick="toggleMenu()" id="menu-icon">☰</div>
     <div>
       <h1>Quiet Cash</h1>
-      <p>Track, Grow & Control Your Money</p>
+      <p>Where Your Money Speaks</p>
     </div>
   </header>
 
@@ -98,7 +78,7 @@
   <nav id="nav-menu">
     <a href="index.html">Home</a>
     <a href="articles.html">Articles</a>
-    <a href="app.html">cash tracking tool</a>
+    <a href="app.html">App</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
     <a href="privacy.html">Privacy Policy</a>
@@ -107,50 +87,47 @@
   <!-- Hero -->
   <section class="hero">
     <img src="https://images.pexels.com/photos/4386374/pexels-photo-4386374.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Person tracking expenses" loading="lazy">
-    <p>Quiet Cash helps you take control of your daily spending, savings, and long-term financial goals. Whether it’s budgeting your salary, tracking boda-boda fares, or planning weekly savings, our tools make money management simple, practical, and rewarding.</p>
+    <h2>Your Money Is Watching. Are You Paying Attention?</h2>
+    <p>You just landed on a space where every coin counts, where small choices echo loudly, and where <span class="highlight">your cash tells stories you can’t ignore</span>. This isn’t just another finance page — it’s a guide, a mirror, and a silent witness to your decisions. Scroll, read, learn — and take control before your money moves without you.</p>
     <div class="cta-buttons">
-      <a href="articles.html">Read Articles</a>
+      <a href="articles/choices-made-in-anger.html">Read Featured Story</a>
+      <a href="articles.html">Explore Articles</a>
       <a href="app.html">Try Tool</a>
     </div>
   </section>
 
   <!-- Ad Placeholder -->
   <div class="ad-placeholder">
-    <!-- AdSense: Leaderboard 728x90 -->
-    <p>[Ad Placeholder: 728x90]</p>
+    <p>[Ad Placeholder: Leaderboard 728x90]</p>
   </div>
 
-  <!-- Content Expansion -->
-  <section class="content">
-    <h2>Why Track Your Money?</h2>
-    <p>Money often slips away in small amounts without us noticing. A 5,000 UGX  airtime top up here, a 3,000 UGX boda boda ride there, and by the end of the week, you may wonder where half your cash went. Tracking your money gives you the power to see these hidden leaks. With Quiet Cash, you can log daily expenses in just a few seconds, helping you stay aware of your spending patterns. When you know exactly where your cash goes, it becomes easier to adjust your habits and direct more towards your savings goals—whether that’s a new phone, school fees, or starting a small side hustle.</p>
-
-    <h2>Top Tips to Start Today</h2>
-    <p>You don’t need a finance degree to manage money wisely—just a few simple steps. First, set aside at least 10,000 UGX weekly into savings; this builds discipline and security. Second, track all expenses, even the smallest, so you avoid surprise shortages. Third, reduce impulse spending by carrying only the cash you need for the day. Finally, set realistic targets like saving for a new TV or paying off a small loan, and use Quiet Cash to monitor progress. These small habits can transform your financial journey and give you more peace of mind about the future.</p>
+  <!-- Featured Story -->
+  <section class="featured-story">
+    <p><em>"We often tell ourselves that we don’t got a choice. But the truth is, <strong>we always do</strong>."</em></p>
+    <blockquote>Choices made in anger can’t be undone. Not because they were loud, but because they were fast. Not because the world noticed, but because money noticed first.</blockquote>
+    <p>Answering back to your boss just to prove your coworkers you don’t care, spending impulsively to show you’re untouchable — every decision leaves a trace in your wallet. Learn how to turn moments of frustration into awareness, and take control of your money before it controls you.</p>
+    <a href="articles/choices-made-in-anger.html">Read Full Story</a>
   </section>
 
-  <!-- Articles -->
-  <section class="articles">
+  <!-- Content Section -->
+  <section class="content">
+    <h2>Why Track Your Money?</h2>
+    <p>Money disappears in the quietest ways — a 5,000 UGX airtime top-up, a 3,000 UGX boda-boda ride, a coffee bought without thought. By the end of the week, you wonder where it all went. Tracking gives you eyes where you didn’t have them, ears where you thought there was silence, and control where you assumed you had none.</p>
 
-<div class="article-card" style="background:#fff; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08); overflow:hidden; margin:1rem 0; max-width:320px;">
-  <a href="articles/is-it-okay-to-buy-a-phone-on-loan.html" style="text-decoration:none; color:inherit;">
-    <img src="https://images.pexels.com/photos/9963289/pexels-photo-9963289.jpeg?auto=compress&cs=tinysrgb&w=1200" 
-         alt="Man checking phone in Ugandan market" 
-         style="width:100%; height:auto; display:block;">
-    <div style="padding:1rem;">
-      <h2 style="font-size:1.1rem; color:#0d6efd; margin:0 0 0.5rem;">Is it Okay to Buy a Phone on Loan?</h2>
-      <p style="font-size:0.95rem; color:#444; line-height:1.4; margin:0;">
-        A deep dive into whether buying a smartphone on loan is really saving or just another hidden cost — with Ugandan market examples.
-      </p>
-    </div>
-  </a>
-</div>
-    <!-- New 4 cards -->
+    <h2>Top Tips to Start Today</h2>
+    <p>1. Set aside at least 10,000 UGX (~$2.60) weekly — small wins compound into security.<br>
+       2. Track all expenses, even the smallest, to spot hidden leaks.<br>
+       3. Carry only the cash you need — impulse has no home.<br>
+       4. Set realistic goals: a phone, a TV, school fees — and measure progress with Quiet Cash.</p>
+  </section>
+
+  <!-- Articles Grid -->
+  <section class="articles">
     <div class="card">
       <img src="https://images.pexels.com/photos/7689731/pexels-photo-7689731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Budgeting tips" loading="lazy">
       <div class="card-content">
         <h3>Daily Savings Made Simple</h3>
-        <p>Discover practical ways to save at least 5,000 UGX (~$1.30) each day without stress.</p>
+        <p>Discover practical ways to save at least 5,000 UGX each day without stress.</p>
         <a href="articles/daily-savings.html">Read More</a>
       </div>
     </div>
@@ -164,40 +141,32 @@
       </div>
     </div>
 
-    <!-- Ad Placeholder -->
-    <div class="ad-placeholder">
-      <!-- AdSense: Rectangle 300x250 -->
-      <p>[Ad Placeholder: 300x250]</p>
-    </div>
-
-
-
-    <!-- Old 4 cards -->
     <div class="card">
-      <img src="https://images.pexels.com/photos/4386357/pexels-photo-4386357.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cash vs Mobile Money" loading="lazy">
+      <img src="https://images.pexels.com/photos/4386378/pexels-photo-4386378.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Financial goals" loading="lazy">
       <div class="card-content">
-        <h3>Cash vs Mobile Money</h3>
-        <p>Which is better for daily use? Explore pros, cons, and when to use each.</p>
-        <a href="articles/cash-vs-mobile.html">Read More</a>
+        <h3>Set Realistic Goals</h3>
+        <p>Create financial goals that match your income and lifestyle.</p>
+        <a href="articles/financial-goals.html">Read More</a>
       </div>
     </div>
 
     <div class="card">
-      <img src="https://images.pexels.com/photos/4386327/pexels-photo-4386327.jpeg?auto=compress&cs=tinysrgb&w=800" alt="5 Tricks to Save More" loading="lazy">
+      <img src="https://images.pexels.com/photos/4386395/pexels-photo-4386395.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Smart spending" loading="lazy">
       <div class="card-content">
-        <h3>5 Tricks to Save More</h3>
-        <p>Simple hacks to increase your savings without cutting essentials.</p>
-        <a href="articles/save-more.html">Read More</a>
+        <h3>Smart Spending Habits</h3>
+        <p>Tips to stretch your money further while avoiding unnecessary expenses.</p>
+        <a href="articles/smart-spending.html">Read More</a>
       </div>
     </div>
 
-   
-
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="articles.html" style="display:inline-block; padding:0.8rem 1.6rem; background:#f39c12; color:white; border-radius:6px; font-weight:bold;">See More Articles</a>
+    </div>
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 Quiet Cash. All Rights Reserved.</p>
+    <p>&copy; 2026 Quiet Cash. All Rights Reserved.</p>
     <p>
       <a href="privacy.html">Privacy Policy</a> | 
       <a href="terms.html">Terms of Service</a> | 
@@ -214,5 +183,6 @@
       icon.textContent = nav.classList.contains("show") ? "✖" : "☰";
     }
   </script>
+
 </body>
 </html>
