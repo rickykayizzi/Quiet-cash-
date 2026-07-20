@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kayizzi Insurance Hub</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+margin:0;
+background:#f4f7fb;
+color:#222;
+}
+
+
+header{
+background:#003b73;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+
+header h1{
+margin:0;
+}
+
+
+nav{
+background:white;
+display:flex;
+gap:10px;
+padding:10px;
+overflow-x:auto;
+box-shadow:0 2px 5px #ddd;
+}
+
+
+nav button{
+border:none;
+background:#003b73;
+color:white;
+padding:12px 16px;
+border-radius:20px;
+cursor:pointer;
+white-space:nowrap;
+}
+
+
+
+.container{
+padding:20px;
+}
+
+
+
+.page{
+display:none;
+}
+
+
+
+.active{
+display:block;
+}
+
+
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:15px;
+}
+
+
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 3px 8px #ddd;
+}
+
+
+
+.card h3{
+margin:0;
+font-size:15px;
+color:#555;
+}
+
+
+
+.number{
+font-size:28px;
+font-weight:bold;
+color:#003b73;
+margin-top:10px;
+}
+
+
+
+.section{
+background:white;
+padding:20px;
+border-radius:12px;
+margin-top:20px;
+box-shadow:0 3px 8px #ddd;
+}
+
+
+
+.quick{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+gap:10px;
+}
+
+
+
+.quick div{
+background:#003b73;
+color:white;
+padding:15px;
+border-radius:10px;
+text-align:center;
+}
+
+
+
+input,select,textarea{
+width:100%;
+padding:12px;
+margin:8px 0;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+
+
+button.main{
+background:#003b73;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+cursor:pointer;
+width:100%;
+}
+
+
+
+.client{
+background:#eef5ff;
+padding:15px;
+border-radius:10px;
+margin-top:10px;
+border-left:5px solid #003b73;
+}
+
+
+
+.stage{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 3px 8px #ddd;
+min-height:200px;
+}
+
+
+
+.pipeline{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+
+
+
+.result{
+background:#eef5ff;
+padding:15px;
+margin-top:15px;
+border-radius:10px;
+}
+
+
+
+footer{
+text-align:center;
+padding:20px;
+color:#777;
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>Kayizzi Insurance Hub</h1>
+
+<p>Sales Management System</p>
+
+</header>
+
+
+
+<nav>
+
+<button onclick="showPage('dashboard')">Dashboard</button>
+
+<button onclick="showPage('clientsPage')">Clients</button>
+
+<button onclick="showPage('pipelinePage')">Pipeline</button>
+
+<button onclick="showPage('calculatorPage')">Calculator</button>
+
+<button onclick="showPage('reportsPage')">Reports</button>
+
+</nav>
+
+
+
+<div class="container">
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="page active">
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>Total Clients</h3>
+
+<div class="number" id="totalClients">0</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>New Leads</h3>
+
+<div class="number" id="newLeads">0</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Follow Ups</h3>
+
+<div class="number" id="followUps">0</div>
+
+</div>
+
+
+<div class="card">
+
+<h3>Commission</h3>
+
+<div class="number" id="totalCommission">
+UGX 0
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="section">
+
+<h2>Quick Actions</h2>
+
+
+<div class="quick">
+
+<div onclick="showPage('clientsPage')">
+➕ Add Client
+</div>
+
+
+<div onclick="showPage('pipelinePage')">
+📞 Pipeline
+</div>
+
+
+<div onclick="showPage('calculatorPage')">
+🧮 Calculator
+</div>
+
+
+<div onclick="showPage('reportsPage')">
+📊 Reports
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="section">
+
+<h2>Today's Activity</h2>
+
+<p id="activity">
+No activity yet.
+</p>
+
+</div>
+
+
+</div>
+<!-- CLIENTS PAGE -->
+
+<div id="clientsPage" class="page">
+
+
+<div class="section">
+
+<h2>Add New Client</h2>
+
+
+<input id="clientName" placeholder="Client Name">
+
+
+<input id="clientPhone" placeholder="Phone Number">
+
+
+<input id="clientOrg" placeholder="Company / School">
+
+
+<select id="clientProduct">
+
+<option value="">Select Product</option>
+
+<option>Life Insurance</option>
+
+<option>Education Plan</option>
+
+<option>Savings Plan</option>
+
+<option>Medical Insurance</option>
+
+</select>
+
+
+
+<select id="clientStatus">
+
+<option>New Lead</option>
+
+<option>Contacted</option>
+
+<option>Meeting Scheduled</option>
+
+<option>Proposal Sent</option>
+
+<option>Closed</option>
+
+<option>Lost</option>
+
+</select>
+
+
+
+<input id="clientPremium" type="number" placeholder="Expected Premium">
+
+
+<input id="clientCommission" type="number" placeholder="Expected Commission">
+
+
+<input id="clientFollow" type="date">
+
+
+
+<textarea id="clientNotes" placeholder="Notes"></textarea>
+
+
+
+<button class="main" onclick="saveClient()">
+
+Save Client
+
+</button>
+
+
+</div>
+
+
+
+
+<div class="section">
+
+
+<h2>Client List</h2>
+
+
+<div id="clientList">
+
+No clients yet.
+
+</div>
+
+
+</div>
+
+
+</div>
+<!-- PIPELINE PAGE -->
+
+<div id="pipelinePage" class="page">
+
+
+<h2>Sales Pipeline</h2>
+
+
+<div class="pipeline">
+
+
+<div class="stage">
+<h3>New Lead</h3>
+<div id="New Lead"></div>
+</div>
+
+
+<div class="stage">
+<h3>Contacted</h3>
+<div id="Contacted"></div>
+</div>
+
+
+<div class="stage">
+<h3>Meeting</h3>
+<div id="Meeting Scheduled"></div>
+</div>
+
+
+<div class="stage">
+<h3>Proposal</h3>
+<div id="Proposal Sent"></div>
+</div>
+
+
+<div class="stage">
+<h3>Closed</h3>
+<div id="Closed"></div>
+</div>
+
+
+<div class="stage">
+<h3>Lost</h3>
+<div id="Lost"></div>
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- CALCULATOR PAGE -->
+
+
+<div id="calculatorPage" class="page">
+
+
+<div class="section">
+
+
+<h2>Insurance Calculator</h2>
+
+
+<input id="calcName" placeholder="Client Name">
+
+
+<input id="calcPhone" placeholder="Phone Number">
+
+
+<select id="calcProduct">
+
+<option>Life Insurance</option>
+
+<option>Education Plan</option>
+
+<option>Savings Plan</option>
+
+<option>Medical Insurance</option>
+
+</select>
+
+
+
+<input id="coverAmount" type="number" placeholder="Cover Amount UGX">
+
+
+<input id="policyYears" type="number" placeholder="Policy Years">
+
+
+
+<button class="main" onclick="calculate()">
+
+Calculate
+
+</button>
+
+
+
+<div class="result" id="calcResult">
+
+Waiting for calculation...
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- REPORTS PAGE -->
+
+
+<div id="reportsPage" class="page">
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<h3>Total Clients</h3>
+
+<div class="number" id="reportClients">
+0
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>Closed Policies</h3>
+
+<div class="number" id="reportClosed">
+0
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>Conversion</h3>
+
+<div class="number" id="reportConversion">
+0%
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>Total Commission</h3>
+
+<div class="number" id="reportCommission">
+UGX 0
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="section">
+
+<h2>Products Performance</h2>
+
+<p id="productReport">
+No data yet.
+</p>
+
+
+</div>
+
+
+
+<div class="section">
+
+<h2>Summary</h2>
+
+<p id="reportSummary">
+No data yet.
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<footer>
+
+Kayizzi Insurance Hub © 2026
+
+</footer>
+
+
+</div>
+<script>
+
+
+// DATABASE
+
+let clients = JSON.parse(localStorage.getItem("clients")) || [];
+
+
+
+
+// PAGE SWITCHING
+
+function showPage(page){
+
+let pages=document.querySelectorAll(".page");
+
+pages.forEach(p=>{
+p.classList.remove("active");
+});
+
+
+document.getElementById(page).classList.add("active");
+
+
+if(page==="pipelinePage"){
+displayPipeline();
+}
+
+
+if(page==="reportsPage"){
+updateReports();
+}
+
+
+}
+
+
+
+
+
+// SAVE CLIENT
+
+function saveClient(){
+
+
+let client={
+
+id:Date.now(),
+
+name:clientName.value,
+
+phone:clientPhone.value,
+
+organization:clientOrg.value,
+
+product:clientProduct.value,
+
+status:clientStatus.value,
+
+premium:Number(clientPremium.value || 0),
+
+commission:Number(clientCommission.value || 0),
+
+followUp:clientFollow.value,
+
+notes:clientNotes.value
+
+};
+
+
+
+clients.push(client);
+
+
+saveData();
+
+
+alert("Client saved successfully");
+
+
+displayClients();
+
+
+updateDashboard();
+
+
+}
+
+
+
+
+
+// SAVE DATABASE
+
+function saveData(){
+
+localStorage.setItem(
+"clients",
+JSON.stringify(clients)
+);
+
+}
+
+
+
+
+
+// DISPLAY CLIENTS
+
+function displayClients(){
+
+
+let list=document.getElementById("clientList");
+
+
+let html="";
+
+
+clients.forEach((c,index)=>{
+
+
+html+=`
+
+<div class="client">
+
+<b>${c.name}</b><br>
+
+📞 ${c.phone}<br>
+
+🏢 ${c.organization}<br>
+
+📌 ${c.product}<br>
+
+Status: ${c.status}<br>
+
+Premium: UGX ${c.premium.toLocaleString()}<br>
+
+Follow Up: ${c.followUp || "None"}<br>
+
+Notes: ${c.notes}
+
+
+<br><br>
+
+
+<button onclick="deleteClient(${index})">
+Delete
+</button>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+list.innerHTML=html || "No clients yet";
+
+
+}
+
+
+
+
+
+function deleteClient(index){
+
+
+clients.splice(index,1);
+
+saveData();
+
+displayClients();
+
+updateDashboard();
+
+}
+
+
+
+
+
+// DASHBOARD
+
+
+function updateDashboard(){
+
+
+document.getElementById("totalClients").innerHTML =
+clients.length;
+
+
+
+let leads =
+clients.filter(c=>c.status==="New Lead").length;
+
+
+document.getElementById("newLeads").innerHTML =
+leads;
+
+
+
+let follow =
+clients.filter(c=>c.followUp).length;
+
+
+document.getElementById("followUps").innerHTML =
+follow;
+
+
+
+let commission =
+clients.reduce((sum,c)=>{
+
+return sum + Number(c.commission || 0);
+
+},0);
+
+
+
+document.getElementById("totalCommission").innerHTML =
+"UGX "+commission.toLocaleString();
+
+
+
+}
+
+
+
+
+
+// PIPELINE
+
+
+function displayPipeline(){
+
+
+let stages=[
+
+"New Lead",
+"Contacted",
+"Meeting Scheduled",
+"Proposal Sent",
+"Closed",
+"Lost"
+
+];
+
+
+
+stages.forEach(stage=>{
+
+
+let box=document.getElementById(stage);
+
+
+let html="";
+
+
+
+clients.filter(c=>c.status===stage)
+.forEach(c=>{
+
+
+html+=`
+
+<div class="client">
+
+<b>${c.name}</b><br>
+
+${c.product}<br>
+
+
+<select onchange="changeStage(${c.id},this.value)">
+
+<option>${c.status}</option>
+
+<option>New Lead</option>
+<option>Contacted</option>
+<option>Meeting Scheduled</option>
+<option>Proposal Sent</option>
+<option>Closed</option>
+<option>Lost</option>
+
+
+</select>
+
+
+</div>
+
+`;
+
+
+
+});
+
+
+box.innerHTML=html || "Empty";
+
+
+});
+
+
+}
+
+
+
+
+
+function changeStage(id,status){
+
+
+clients=clients.map(c=>{
+
+
+if(c.id===id){
+
+c.status=status;
+
+}
+
+
+return c;
+
+
+});
+
+
+saveData();
+
+displayPipeline();
+
+updateDashboard();
+
+
+}
+
+
+
+
+
+// CALCULATOR
+
+
+function calculate(){
+
+
+let cover =
+Number(coverAmount.value);
+
+
+let years =
+Number(policyYears.value);
+
+
+
+if(!cover || !years){
+
+alert("Enter cover amount and years");
+
+return;
+
+}
+
+
+
+let premium =
+Math.round((cover/years)/12);
+
+
+
+let commission =
+Math.round(premium*0.15);
+
+
+
+calcResult.innerHTML=`
+
+Monthly Premium:
+<b>UGX ${premium.toLocaleString()}</b>
+
+
+<br><br>
+
+
+Commission:
+<b>UGX ${commission.toLocaleString()}</b>
+
+
+<br><br>
+
+
+<button class="main" onclick="saveProposal(${premium},${commission})">
+
+Save Proposal
+
+</button>
+
+`;
+
+
+
+}
+
+
+
+
+
+function saveProposal(premium,commission){
+
+
+let client={
+
+
+id:Date.now(),
+
+name:calcName.value,
+
+phone:calcPhone.value,
+
+organization:"",
+
+product:calcProduct.value,
+
+status:"Proposal Sent",
+
+premium:premium,
+
+commission:commission,
+
+followUp:"",
+
+notes:"Created from calculator"
+
+
+};
+
+
+
+clients.push(client);
+
+
+saveData();
+
+
+alert("Proposal saved");
+
+
+updateDashboard();
+
+
+}
+
+
+
+
+
+// REPORTS
+
+
+function updateReports(){
+
+
+let total=clients.length;
+
+
+let closed =
+clients.filter(c=>c.status==="Closed").length;
+
+
+
+let conversion =
+total ? Math.round((closed/total)*100) : 0;
+
+
+
+let commission =
+clients.reduce((s,c)=>{
+
+return s+Number(c.commission||0);
+
+},0);
+
+
+
+reportClients.innerHTML=total;
+
+reportClosed.innerHTML=closed;
+
+reportConversion.innerHTML=conversion+"%";
+
+reportCommission.innerHTML=
+"UGX "+commission.toLocaleString();
+
+
+
+let products={};
+
+
+
+clients.forEach(c=>{
+
+
+products[c.product]=(products[c.product]||0)+1;
+
+
+});
+
+
+
+let text="";
+
+
+for(let p in products){
+
+text+=p+": "+products[p]+" clients<br>";
+
+}
+
+
+
+productReport.innerHTML =
+text || "No data";
+
+
+
+reportSummary.innerHTML=
+
+`
+You have <b>${total}</b> clients.
+
+<br><br>
+
+<b>${closed}</b> closed policies.
+
+<br><br>
+
+Conversion rate:
+<b>${conversion}%</b>
+
+`;
+
+
+
+}
+
+
+
+
+
+// LOAD DATA WHEN OPENED
+
+displayClients();
+
+updateDashboard();
+
+
+</script>
