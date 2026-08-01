@@ -133,7 +133,7 @@
         tagline: "A lump sum for your family to cover debts and continue living the life you planned for them, if you pass away or are disabled.",
         benefits: ["Permanent disability cover", "Critical illness (optional)", "Physical impairment (optional)", "Funeral benefit", "Accidental death cover"],
         eligibility: "No medical tests required for standard cover.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/simple-life-plan",
+        url: "plans/simple-life-plan.html",
         tags: ["family", "accident"]
       },
       flexiProtect: {
@@ -141,7 +141,7 @@
         tagline: "An affordable, customisable funeral and family protection plan — can cover up to 20 family members including up to 3 spouses.",
         benefits: ["Funeral expense lump sum", "Double accident benefit", "Third-party premium payments allowed", "6-month premium waiver for family if you pass away"],
         eligibility: "6-month waiting period for natural causes; accident claims covered immediately.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/flexi-protect",
+        url: "plans/flexi-protect.html",
         tags: ["family", "funeral"]
       },
       kuzaPlan: {
@@ -149,7 +149,7 @@
         tagline: "An endowment plan — save toward a future goal while your beneficiaries are protected if you pass away or become disabled early.",
         benefits: ["Investment account with maturity payout", "Death benefit", "Permanent & total disability", "Critical illness & physical impairment (optional)"],
         eligibility: "Ages 18–60. Fixed 10-year term. Sum assured tiers: 20M, 40M, 60M, 80M, 100M UGX. No medical tests required.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/kuza-plan",
+        url: "plans/kuza-plan.html",
         extra: { label: "Try the Kuza Plan calculator", url: "https://www.liberty.co.ug/calculators/kuza-plan-calculator" },
         tags: ["savings", "family"]
       },
@@ -158,7 +158,7 @@
         tagline: "Keeps your child's education funded if you're no longer able to pay their school fees due to death or disability.",
         benefits: ["Sum assured doesn't shrink as your child grows", "Physical impairment cover for the parent", "Child funeral benefit", "Death benefit"],
         eligibility: "Cover applies while your child is pursuing their education.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/education-protector",
+        url: "plans/education-protector.html",
         tags: ["education"]
       },
       somaPlan: {
@@ -166,7 +166,7 @@
         tagline: "A structured education savings plan — build funds for school fees over time, with flexible contributions and no withdrawal penalties.",
         benefits: ["Flexible monthly or annual contributions", "No penalties to stop, reduce or resume", "6-month premium cover if you're retrenched", "Full investment value paid to beneficiaries on death"],
         eligibility: "Open to anyone 18+ financially responsible for a child. Partial withdrawals after 5 years.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/soma-plan",
+        url: "plans/soma-plan.html",
         extra: { label: "Try the Kuza Plan calculator (education planning)", url: "https://www.liberty.co.ug/calculators/kuza-plan-calculator" },
         tags: ["education", "savings"]
       },
@@ -175,7 +175,7 @@
         tagline: "Affordable lump-sum cover for hospitalisation, critical illness, and disability — pay small premiums via mobile money.",
         benefits: ["Lump sum after 3+ nights hospitalised", "Covers major critical illnesses (stroke, cancer, kidney failure, etc.)", "Permanent & total disability", "Death benefit"],
         eligibility: "Premiums payable via mobile money (*217*294#).",
-        url: "https://www.liberty.co.ug/personal/life-assurance/afya-plan",
+        url: "plans/afya-plan.html",
         tags: ["medical", "accident"]
       },
       hospitalCashback: {
@@ -183,7 +183,7 @@
         tagline: "A fixed daily cash payout for every day you're hospitalised — helps cover costs your medical cover doesn't.",
         benefits: ["Daily cash benefit while hospitalised", "Double benefit in ICU", "Covered up to 105 days", "Complements existing medical aid"],
         eligibility: "Covers you and your family.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/hospital-cashback",
+        url: "plans/hospital-cashback.html",
         tags: ["medical"]
       },
       criticalIllness: {
@@ -191,7 +191,7 @@
         tagline: "A lump sum payout on diagnosis of a serious illness, to ease the financial burden while you focus on recovery.",
         benefits: ["High cover with no underwriting", "Flexible benefit options", "Cover for multiple illnesses", "Supplements existing medical aid"],
         eligibility: "Claimable immediately for accident-related events; waiting period applies for natural illness.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/critical-illness-plan",
+        url: "plans/critical-illness-plan.html",
         tags: ["medical"]
       },
       libertyFuneral: {
@@ -199,7 +199,7 @@
         tagline: "Prepay for funeral services so your family isn't left with the financial burden during a difficult time.",
         benefits: ["Covers burial/cremation, transport, coffin/urn, ceremony costs", "Accidental death benefit", "Premium waiver option", "Tombstone benefit"],
         eligibility: "Standard funeral cover terms apply.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/liberty-funeral-plan",
+        url: "plans/liberty-funeral-plan.html",
         tags: ["funeral"]
       },
       solaceFarewell: {
@@ -207,7 +207,7 @@
         tagline: "A funeral/death benefit plan with claims processed through Solace offices or UFS parlours.",
         benefits: ["Natural and accidental death cover", "Claims assessed within 48 hours of full documentation", "No waiting period for accidental death"],
         eligibility: "6-month waiting period for natural causes.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/solace-farewell-plan",
+        url: "plans/solace-farewell-plan.html",
         tags: ["funeral"]
       },
       accidentProtection: {
@@ -215,7 +215,7 @@
         tagline: "Financial assistance if you're injured or pass away as a result of an accident — cover starts immediately.",
         benefits: ["Accidental death benefit", "Impairment benefits", "Multiple claims allowed", "Claimable immediately after activation"],
         eligibility: "Useful for high-risk occupations, frequent travellers, and families with dependants.",
-        url: "https://www.liberty.co.ug/personal/life-assurance/accident-protection-plan",
+        url: "plans/accident-protection-plan.html",
         tags: ["accident", "family"]
       }
     };
@@ -379,7 +379,7 @@
         html += '<ul>' + p.benefits.map(b => '<li>' + b + '</li>').join('') + '</ul>';
         html += '<p class="eligibility">' + p.eligibility + '</p>';
         html += '<div class="actions">';
-        html += '<a class="learn" href="' + p.url + '" target="_blank" rel="noopener">Learn more</a>';
+        html += '<a class="learn" href="' + p.url + '">Full details</a>';
         html += '<a class="quote" href="' + buildWhatsAppMessage(p.name) + '" target="_blank" rel="noopener">Ask Richard about this</a>';
         if (p.extra) {
           html += '<a class="learn" href="' + p.extra.url + '" target="_blank" rel="noopener">' + p.extra.label + '</a>';
