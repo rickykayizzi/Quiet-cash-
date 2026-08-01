@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Finder | Find Your Plan | QuietCash</title>
+  <meta name="description" content="Answer 5 quick questions to see which Liberty life assurance plans may fit your goals, then request a personalised quote from Richard Kayizzi, Financial Adviser and Liberty DSA.">
+
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:#f3f4f6; color:#222; }
+    a { text-decoration:none; }
+
+    header { background:#1a1f71; color:white; padding:1.2rem 1.5rem; display:flex; justify-content:center; align-items:center; position:relative; }
+    header h1 { font-family: Georgia, serif; font-size:1.6rem; margin:0; }
+    header p { font-size:0.95rem; opacity:0.85; margin:0; font-style:italic; }
+
+    .wrap { max-width:680px; margin:2rem auto; padding:0 1rem; }
+
+    .progress { display:flex; gap:6px; margin-bottom:1.5rem; }
+    .progress .seg { flex:1; height:6px; border-radius:3px; background:#dbe0f0; }
+    .progress .seg.active { background:#1a1f71; }
+    .progress .seg.done { background:#25D366; }
+
+    .panel { background:white; border-radius:10px; padding:1.8rem 1.6rem; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
+    .panel h2 { font-family: Georgia, serif; color:#1a1f71; font-size:1.35rem; margin-top:0; margin-bottom:1.3rem; }
+
+    .options { display:flex; flex-direction:column; gap:0.7rem; }
+    .opt { display:block; border:2px solid #e2e2e2; border-radius:8px; padding:0.9rem 1rem; cursor:pointer; font-weight:bold; color:#333; transition:0.15s; background:white; text-align:left; width:100%; font-size:1rem; }
+    .opt:hover { border-color:#1a1f71; background:#f5f7ff; }
+    .opt.selected { border-color:#25D366; background:#eafbf0; color:#1a1f71; }
+
+    .nav-row { display:flex; justify-content:space-between; margin-top:1.6rem; }
+    .btn { padding:0.7rem 1.4rem; border-radius:6px; font-weight:bold; border:none; cursor:pointer; font-size:0.95rem; }
+    .btn-back { background:transparent; color:#666; }
+    .btn-next { background:#1a1f71; color:white; }
+    .btn-next:disabled { background:#b7bce0; cursor:not-allowed; }
+
+    /* Results */
+    #results { display:none; }
+    #results h2 { font-family: Georgia, serif; color:#1a1f71; }
+    .result-note { background:#fff8e1; border:1px solid #f0e2b0; border-radius:8px; padding:1rem 1.2rem; font-size:0.88rem; color:#555; margin-bottom:1.5rem; line-height:1.6; }
+    .product-card { border:1px solid #e2e2e2; border-radius:10px; padding:1.2rem; margin-bottom:1rem; background:#fafbff; }
+    .product-card h3 { margin:0 0 0.4rem; color:#1a1f71; font-family: Georgia, serif; font-size:1.15rem; }
+    .product-card p.tagline { margin:0 0 0.7rem; color:#444; font-size:0.95rem; line-height:1.5; }
+    .product-card ul { margin:0 0 0.8rem; padding-left:1.2rem; font-size:0.88rem; color:#555; }
+    .product-card .eligibility { font-size:0.8rem; color:#888; margin-bottom:0.8rem; }
+    .product-card .actions { display:flex; gap:0.6rem; flex-wrap:wrap; }
+    .product-card .actions a { padding:0.5rem 1rem; border-radius:20px; font-size:0.85rem; font-weight:bold; }
+    .product-card .learn { border:1px solid #1a1f71; color:#1a1f71; }
+    .product-card .quote { background:#25D366; color:white; }
+
+    .adviser-box { text-align:center; margin-top:1.5rem; padding:1.3rem; background:#fff8e1; border-radius:8px; border:1px solid #f0e2b0; }
+    .adviser-box p { margin:0 0 0.6rem; color:#444; font-size:0.9rem; line-height:1.6; }
+    .adviser-box .phone { font-weight:bold; color:#1a1f71; }
+    .adviser-box a.big-cta { display:inline-block; margin-top:0.8rem; padding:0.85rem 1.8rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; }
+
+    .restart { text-align:center; margin-top:1.2rem; }
+    .restart a { color:#888; font-size:0.85rem; }
+
+    footer { background:#222; color:#ccc; text-align:center; padding:2rem 1rem; margin-top:2rem; }
+    footer a { color:#8ea6ff; margin:0 0.5rem; }
+    footer .disclaimer { font-size:0.75rem; color:#999; max-width:680px; margin:1rem auto 0; }
+
+    .wa-float { position:fixed; bottom:20px; right:20px; background:#25D366; color:white; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.25); z-index:999; font-size:1.6rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>QuietCash — Insurance Finder</h1>
+      <p>5 quick questions, then a plan match</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <div class="progress" id="progress">
+      <div class="seg" data-i="0"></div>
+      <div class="seg" data-i="1"></div>
+      <div class="seg" data-i="2"></div>
+      <div class="seg" data-i="3"></div>
+      <div class="seg" data-i="4"></div>
+    </div>
+
+    <!-- Step panels -->
+    <div class="panel" id="quizPanel">
+      <div id="stepContent"></div>
+      <div class="nav-row">
+        <button class="btn btn-back" id="backBtn" onclick="goBack()">← Back</button>
+        <button class="btn btn-next" id="nextBtn" onclick="goNext()" disabled>Next →</button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+      <h2>Based on your answers</h2>
+      <div class="result-note">
+        These are educational pointers based on Liberty's product range, not a guaranteed recommendation or quote. Actual eligibility, premiums, and benefits depend on underwriting and policy terms.
+      </div>
+      <div id="productList"></div>
+
+      <div class="adviser-box">
+        <p>Richard Kayizzi is a Financial Adviser &amp; Liberty Direct Sales Agent (DSA). Message him directly with your answers already filled in, and he'll follow up personally.</p>
+        <p class="phone">📱 WhatsApp / Call: 0768 372 800</p>
+        <a class="big-cta" id="bigQuoteBtn" href="#" target="_blank" rel="noopener">Request My Quote on WhatsApp</a>
+      </div>
+
+      <div class="restart">
+        <a href="javascript:void(0)" onclick="restartQuiz()">Start over</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>&copy; 2026 QuietCash. All Rights Reserved.</p>
+    <p>
+      <a href="index-v2.html">Home</a> |
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="contact.html">Contact</a>
+    </p>
+    <p class="disclaimer">QuietCash provides general information to help you understand insurance in Uganda. Richard Kayizzi is a Financial Adviser and Direct Sales Agent (DSA) for Liberty; quotations and applications made through this site relate to Liberty's product range. We do not guarantee quotes, premiums, or approval — these are determined by underwriting.</p>
+  </footer>
+
+  <a class="wa-float" href="https://wa.me/256768372800?text=Hi%2C%20I%27m%20interested%20in%20getting%20an%20insurance%20quote" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">💬</a>
+
+  <script>
+    // ---------- Product database (real Liberty Uganda life assurance products) ----------
+    const PRODUCTS = {
+      simpleLife: {
+        name: "Simple Life Plan",
+        tagline: "A lump sum for your family to cover debts and continue living the life you planned for them, if you pass away or are disabled.",
+        benefits: ["Permanent disability cover", "Critical illness (optional)", "Physical impairment (optional)", "Funeral benefit", "Accidental death cover"],
+        eligibility: "No medical tests required for standard cover.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/simple-life-plan",
+        tags: ["family", "accident"]
+      },
+      flexiProtect: {
+        name: "Flexi Protect",
+        tagline: "An affordable, customisable funeral and family protection plan — can cover up to 20 family members including up to 3 spouses.",
+        benefits: ["Funeral expense lump sum", "Double accident benefit", "Third-party premium payments allowed", "6-month premium waiver for family if you pass away"],
+        eligibility: "6-month waiting period for natural causes; accident claims covered immediately.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/flexi-protect",
+        tags: ["family", "funeral"]
+      },
+      kuzaPlan: {
+        name: "Kuza Plan",
+        tagline: "An endowment plan — save toward a future goal while your beneficiaries are protected if you pass away or become disabled early.",
+        benefits: ["Investment account with maturity payout", "Death benefit", "Permanent & total disability", "Critical illness & physical impairment (optional)"],
+        eligibility: "Ages 18–60. Fixed 10-year term. Sum assured tiers: 20M, 40M, 60M, 80M, 100M UGX. No medical tests required.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/kuza-plan",
+        extra: { label: "Try the Kuza Plan calculator", url: "https://www.liberty.co.ug/calculators/kuza-plan-calculator" },
+        tags: ["savings", "family"]
+      },
+      educationProtector: {
+        name: "Education Protector",
+        tagline: "Keeps your child's education funded if you're no longer able to pay their school fees due to death or disability.",
+        benefits: ["Sum assured doesn't shrink as your child grows", "Physical impairment cover for the parent", "Child funeral benefit", "Death benefit"],
+        eligibility: "Cover applies while your child is pursuing their education.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/education-protector",
+        tags: ["education"]
+      },
+      somaPlan: {
+        name: "Soma Plan",
+        tagline: "A structured education savings plan — build funds for school fees over time, with flexible contributions and no withdrawal penalties.",
+        benefits: ["Flexible monthly or annual contributions", "No penalties to stop, reduce or resume", "6-month premium cover if you're retrenched", "Full investment value paid to beneficiaries on death"],
+        eligibility: "Open to anyone 18+ financially responsible for a child. Partial withdrawals after 5 years.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/soma-plan",
+        extra: { label: "Try the Kuza Plan calculator (education planning)", url: "https://www.liberty.co.ug/calculators/kuza-plan-calculator" },
+        tags: ["education", "savings"]
+      },
+      afyaPlan: {
+        name: "AFYA Plan",
+        tagline: "Affordable lump-sum cover for hospitalisation, critical illness, and disability — pay small premiums via mobile money.",
+        benefits: ["Lump sum after 3+ nights hospitalised", "Covers major critical illnesses (stroke, cancer, kidney failure, etc.)", "Permanent & total disability", "Death benefit"],
+        eligibility: "Premiums payable via mobile money (*217*294#).",
+        url: "https://www.liberty.co.ug/personal/life-assurance/afya-plan",
+        tags: ["medical", "accident"]
+      },
+      hospitalCashback: {
+        name: "Hospital Cashback",
+        tagline: "A fixed daily cash payout for every day you're hospitalised — helps cover costs your medical cover doesn't.",
+        benefits: ["Daily cash benefit while hospitalised", "Double benefit in ICU", "Covered up to 105 days", "Complements existing medical aid"],
+        eligibility: "Covers you and your family.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/hospital-cashback",
+        tags: ["medical"]
+      },
+      criticalIllness: {
+        name: "Critical Illness Plan",
+        tagline: "A lump sum payout on diagnosis of a serious illness, to ease the financial burden while you focus on recovery.",
+        benefits: ["High cover with no underwriting", "Flexible benefit options", "Cover for multiple illnesses", "Supplements existing medical aid"],
+        eligibility: "Claimable immediately for accident-related events; waiting period applies for natural illness.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/critical-illness-plan",
+        tags: ["medical"]
+      },
+      libertyFuneral: {
+        name: "Liberty Funeral Plan",
+        tagline: "Prepay for funeral services so your family isn't left with the financial burden during a difficult time.",
+        benefits: ["Covers burial/cremation, transport, coffin/urn, ceremony costs", "Accidental death benefit", "Premium waiver option", "Tombstone benefit"],
+        eligibility: "Standard funeral cover terms apply.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/liberty-funeral-plan",
+        tags: ["funeral"]
+      },
+      solaceFarewell: {
+        name: "Solace Farewell Plan",
+        tagline: "A funeral/death benefit plan with claims processed through Solace offices or UFS parlours.",
+        benefits: ["Natural and accidental death cover", "Claims assessed within 48 hours of full documentation", "No waiting period for accidental death"],
+        eligibility: "6-month waiting period for natural causes.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/solace-farewell-plan",
+        tags: ["funeral"]
+      },
+      accidentProtection: {
+        name: "Accident Protection Plan",
+        tagline: "Financial assistance if you're injured or pass away as a result of an accident — cover starts immediately.",
+        benefits: ["Accidental death benefit", "Impairment benefits", "Multiple claims allowed", "Claimable immediately after activation"],
+        eligibility: "Useful for high-risk occupations, frequent travellers, and families with dependants.",
+        url: "https://www.liberty.co.ug/personal/life-assurance/accident-protection-plan",
+        tags: ["accident", "family"]
+      }
+    };
+
+    // Which products surface first for each goal (ordered)
+    const GOAL_MATCHES = {
+      family: ["simpleLife", "flexiProtect", "kuzaPlan", "accidentProtection"],
+      education: ["somaPlan", "educationProtector"],
+      savings: ["kuzaPlan", "somaPlan"],
+      medical: ["afyaPlan", "hospitalCashback", "criticalIllness"],
+      funeral: ["libertyFuneral", "flexiProtect", "solaceFarewell"],
+      accident: ["accidentProtection", "afyaPlan"]
+    };
+
+    // ---------- Quiz steps ----------
+    const steps = [
+      {
+        key: "goal",
+        question: "What's your main goal?",
+        options: [
+          { v: "family", l: "❤️ Protect my family" },
+          { v: "education", l: "🎓 Save for my child's education" },
+          { v: "savings", l: "💰 Build long-term savings" },
+          { v: "medical", l: "🏥 Cover medical/hospital costs" },
+          { v: "funeral", l: "🕊️ Plan for funeral expenses" },
+          { v: "accident", l: "⚠️ Protect against accidents/injury" }
+        ]
+      },
+      {
+        key: "budget",
+        question: "How much can you comfortably commit monthly?",
+        options: [
+          { v: "below50", l: "Below UGX 50,000" },
+          { v: "50to100", l: "UGX 50,000 – 100,000" },
+          { v: "100to200", l: "UGX 100,000 – 200,000" },
+          { v: "200to500", l: "UGX 200,000 – 500,000" },
+          { v: "above500", l: "Above UGX 500,000" },
+          { v: "notsure", l: "I'm not sure" }
+        ]
+      },
+      {
+        key: "dependants",
+        question: "Who are you mainly protecting?",
+        options: [
+          { v: "myself", l: "Just myself" },
+          { v: "spouse", l: "My spouse" },
+          { v: "children", l: "My children" },
+          { v: "parents", l: "My parents" },
+          { v: "wholefamily", l: "My whole family" }
+        ]
+      },
+      {
+        key: "timeframe",
+        question: "How long is your financial goal?",
+        options: [
+          { v: "1to5", l: "1–5 years" },
+          { v: "5to10", l: "5–10 years" },
+          { v: "10to15", l: "10–15 years" },
+          { v: "15plus", l: "15+ years" },
+          { v: "notsure", l: "I'm not sure" }
+        ]
+      },
+      {
+        key: "age",
+        question: "What's your age range?",
+        options: [
+          { v: "under25", l: "Under 25" },
+          { v: "25to34", l: "25–34" },
+          { v: "35to44", l: "35–44" },
+          { v: "45to54", l: "45–54" },
+          { v: "55plus", l: "55+" }
+        ]
+      }
+    ];
+
+    let currentStep = 0;
+    const answers = {};
+
+    function renderStep() {
+      const step = steps[currentStep];
+      const content = document.getElementById('stepContent');
+      let html = '<h2>' + step.question + '</h2><div class="options">';
+      step.options.forEach(opt => {
+        const selected = answers[step.key] === opt.v ? ' selected' : '';
+        html += '<button class="opt' + selected + '" data-v="' + opt.v + '" onclick="selectOption(\'' + step.key + '\',\'' + opt.v + '\')">' + opt.l + '</button>';
+      });
+      html += '</div>';
+      content.innerHTML = html;
+
+      document.getElementById('backBtn').style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+      document.getElementById('nextBtn').disabled = !answers[step.key];
+      document.getElementById('nextBtn').textContent = currentStep === steps.length - 1 ? 'See My Matches →' : 'Next →';
+      updateProgress();
+    }
+
+    function updateProgress() {
+      document.querySelectorAll('.progress .seg').forEach((seg, i) => {
+        seg.classList.remove('active', 'done');
+        if (i < currentStep) seg.classList.add('done');
+        else if (i === currentStep) seg.classList.add('active');
+      });
+    }
+
+    function selectOption(key, value) {
+      answers[key] = value;
+      renderStep();
+    }
+
+    function goNext() {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        renderStep();
+      } else {
+        showResults();
+      }
+    }
+
+    function goBack() {
+      if (currentStep > 0) {
+        currentStep--;
+        renderStep();
+      }
+    }
+
+    function restartQuiz() {
+      currentStep = 0;
+      Object.keys(answers).forEach(k => delete answers[k]);
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('quizPanel').style.display = 'block';
+      document.getElementById('progress').style.display = 'flex';
+      renderStep();
+    }
+
+    function buildWhatsAppMessage(productName) {
+      const goalLabels = {family:"Protect my family", education:"Save for my child's education", savings:"Build long-term savings", medical:"Cover medical/hospital costs", funeral:"Plan for funeral expenses", accident:"Protect against accidents/injury"};
+      const budgetLabels = {below50:"Below UGX 50,000", "50to100":"UGX 50,000–100,000", "100to200":"UGX 100,000–200,000", "200to500":"UGX 200,000–500,000", above500:"Above UGX 500,000", notsure:"Not sure"};
+      let msg = "Hi Richard, I used the QuietCash Insurance Finder.\n";
+      msg += "Goal: " + (goalLabels[answers.goal] || answers.goal) + "\n";
+      msg += "Monthly budget: " + (budgetLabels[answers.budget] || answers.budget) + "\n";
+      msg += "Protecting: " + answers.dependants + "\n";
+      msg += "Timeframe: " + answers.timeframe + "\n";
+      msg += "Age range: " + answers.age + "\n";
+      if (productName) msg += "Interested in: " + productName;
+      return "https://wa.me/256768372800?text=" + encodeURIComponent(msg);
+    }
+
+    function showResults() {
+      document.getElementById('quizPanel').style.display = 'none';
+      document.getElementById('progress').style.display = 'none';
+      document.getElementById('results').style.display = 'block';
+
+      const matchKeys = GOAL_MATCHES[answers.goal] || [];
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+
+      matchKeys.forEach(key => {
+        const p = PRODUCTS[key];
+        let html = '<div class="product-card">';
+        html += '<h3>' + p.name + '</h3>';
+        html += '<p class="tagline">' + p.tagline + '</p>';
+        html += '<ul>' + p.benefits.map(b => '<li>' + b + '</li>').join('') + '</ul>';
+        html += '<p class="eligibility">' + p.eligibility + '</p>';
+        html += '<div class="actions">';
+        html += '<a class="learn" href="' + p.url + '" target="_blank" rel="noopener">Learn more</a>';
+        html += '<a class="quote" href="' + buildWhatsAppMessage(p.name) + '" target="_blank" rel="noopener">Ask Richard about this</a>';
+        if (p.extra) {
+          html += '<a class="learn" href="' + p.extra.url + '" target="_blank" rel="noopener">' + p.extra.label + '</a>';
+        }
+        html += '</div></div>';
+        list.innerHTML += html;
+      });
+
+      document.getElementById('bigQuoteBtn').href = buildWhatsAppMessage(null);
+    }
+
+    // init
+    renderStep();
+  </script>
+
+</body>
+</html>
