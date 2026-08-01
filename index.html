@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiet Cash: Where Your Money Speaks</title>
-  <meta name="description" content="Quiet Cash isn’t just an app. It’s a story about your money, your choices, and the power you hold to track, save, and grow every coin. Discover practical tools and insights to take control of your finances in Uganda.">
-  <meta name="keywords" content="personal finance Uganda, daily money tracking, savings tips, financial awareness">
+  <title>Insurance in Uganda | Explore Cover &amp; Request a Quote | QuietCash</title>
+  <meta name="description" content="Understand insurance in Uganda, explore life, medical, motor and education insurance options, and request a personalised quote from Richard Kayizzi, Financial Adviser and Liberty DSA.">
+  <meta name="keywords" content="insurance Uganda, life insurance Uganda, medical insurance Uganda, motor insurance Uganda, education insurance Uganda, insurance companies Uganda, insurance quote Uganda">
 
   <style>
-    /* --- Fonts & Base --- */
     body { font-family: 'Helvetica Neue', Arial, sans-serif; margin:0; background:#f3f4f6; color:#222; }
     a { text-decoration:none; }
 
@@ -16,35 +15,77 @@
     header { background:#1a1f71; color:white; padding:1.2rem 1.5rem; display:flex; justify-content:center; align-items:center; position:relative; }
     header h1 { font-family: Georgia, serif; font-size:1.8rem; margin:0; }
     header p { font-size:1rem; opacity:0.85; margin:0; font-style:italic; }
-
     .hamburger { position:absolute; left:1rem; font-size:1.9rem; cursor:pointer; user-select:none; }
-
     nav { display:none; flex-direction:column; gap:0.8rem; background:#1a1f71; padding:1rem; margin-top:1rem; border-radius:6px; }
     nav.show { display:flex; }
     nav a { color:white; font-weight:bold; }
+    @media (min-width: 800px) {
+      nav { display:flex !important; flex-direction:row; position:absolute; right:1.5rem; background:transparent; padding:0; margin:0; }
+      .hamburger { display:none; }
+    }
 
     /* --- Hero --- */
-    .hero { text-align:center; padding:3rem 1rem; background:linear-gradient(180deg,#e9f2ff 0%,#f3f4f6 100%); }
-    .hero img { max-width:700px; width:100%; height:auto; border-radius:8px; margin-bottom:1.5rem; }
-    .hero h2 { font-family: Georgia, serif; font-size:2rem; color:#1a1f71; margin-bottom:1rem; }
-    .hero p { max-width:720px; margin:0 auto 1.5rem; font-size:1.15rem; line-height:1.7; color:#333; }
-    .cta-buttons a { display:inline-block; margin:0.5rem; padding:0.8rem 1.6rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; transition:0.3s; }
-    .cta-buttons a:hover { background:#162059; }
+    .hero { text-align:center; padding:3rem 1rem 2.5rem; background:linear-gradient(180deg,#e9f2ff 0%,#f3f4f6 100%); }
+    .hero h2 { font-family: Georgia, serif; font-size:2.1rem; color:#1a1f71; margin-bottom:1rem; }
+    .hero p { max-width:680px; margin:0 auto 1.5rem; font-size:1.15rem; line-height:1.7; color:#333; }
+    .cta-buttons a { display:inline-block; margin:0.5rem; padding:0.85rem 1.6rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; transition:0.3s; }
+    .cta-buttons a.secondary { background:#25D366; }
+    .cta-buttons a:hover { opacity:0.9; }
 
-    /* --- Featured Story --- */
-    .featured-story { max-width:900px; margin:2rem auto; background:#fff8e1; padding:2rem; border-radius:8px; box-shadow:0 3px 12px rgba(0,0,0,0.1); }
-    .featured-story p { font-size:1.1rem; line-height:1.7; margin-bottom:1.5rem; }
-    .featured-story blockquote { border-left:6px solid #f39c12; padding-left:15px; font-style:italic; color:#333; margin:20px 0; }
-    .featured-story a { display:inline-block; margin-top:1rem; padding:0.8rem 1.6rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; }
+    /* --- Goal Picker --- */
+    .goal-picker { max-width:1000px; margin:0 auto; padding:0 1rem 2.5rem; text-align:center; }
+    .goal-picker h2 { font-family: Georgia, serif; color:#1a1f71; font-size:1.5rem; margin-bottom:0.4rem; }
+    .goal-picker .sub { color:#555; margin-bottom:1.5rem; font-size:1rem; }
+    .goal-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.9rem; }
+    .goal-card { background:white; border:1px solid #e2e2e2; border-radius:10px; padding:1.1rem 0.9rem; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition:0.2s; }
+    .goal-card:hover { transform:translateY(-3px); box-shadow:0 6px 14px rgba(0,0,0,0.1); border-color:#25D366; }
+    .goal-card .emoji { font-size:1.6rem; display:block; margin-bottom:0.4rem; }
+    .goal-card .label { display:block; font-weight:bold; color:#1a1f71; margin-bottom:0.6rem; font-size:0.98rem; }
+    .goal-card .go { display:inline-block; padding:0.4rem 0.9rem; background:#1a1f71; color:white; border-radius:20px; font-size:0.85rem; font-weight:bold; }
+    .goal-note { margin-top:1.2rem; font-size:0.85rem; color:#777; max-width:640px; margin-left:auto; margin-right:auto; }
 
-    /* --- Content Section --- */
-    .content { max-width:900px; margin:2rem auto; padding:2rem; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-    .content h2 { color:#1a1f71; margin-bottom:1rem; font-family: Georgia, serif; }
-    .content p { margin-bottom:1.5rem; line-height:1.7; }
+    /* --- Insurance Finder teaser --- */
+    .finder-teaser { max-width:900px; margin:0 auto 2.5rem; background:#fff8e1; padding:2rem; border-radius:8px; box-shadow:0 3px 12px rgba(0,0,0,0.1); text-align:center; }
+    .finder-teaser h2 { font-family: Georgia, serif; color:#1a1f71; margin-top:0; }
+    .finder-teaser p { font-size:1.05rem; line-height:1.7; color:#333; max-width:640px; margin:0 auto 1.2rem; }
+    .finder-teaser .steps { display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.4rem; font-size:0.85rem; color:#555; }
+    .finder-teaser .steps span { background:#fff; border:1px solid #e5d9a8; padding:0.35rem 0.8rem; border-radius:14px; }
+    .finder-teaser a.cta { display:inline-block; padding:0.85rem 1.8rem; background:#1a1f71; color:white; border-radius:6px; font-weight:bold; }
 
-    .highlight { background:#fff4c2; font-weight:bold; padding:2px 4px; border-radius:2px; }
+    /* --- Guides grid --- */
+    .guides { max-width:1100px; margin:0 auto 2.5rem; padding:0 1rem; }
+    .guides h2 { text-align:center; font-family: Georgia, serif; color:#1a1f71; margin-bottom:1.5rem; }
+    .guide-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; }
+    .guide-card { background:white; border-radius:8px; padding:1.2rem; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+    .guide-card h3 { margin:0 0 0.5rem; font-size:1.05rem; }
+    .guide-card h3 a { color:#1a1f71; }
+    .guide-card p { margin:0; font-size:0.9rem; color:#555; line-height:1.5; }
 
-    /* --- Articles Grid --- */
+    /* --- Why QuietCash --- */
+    .why { max-width:900px; margin:0 auto 2.5rem; padding:2rem; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .why h2 { color:#1a1f71; font-family: Georgia, serif; margin-bottom:1rem; text-align:center; }
+    .why-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; text-align:center; }
+    .why-grid div { padding:0.8rem; }
+    .why-grid .icon { font-size:1.6rem; display:block; margin-bottom:0.4rem; }
+    .why-grid p { margin:0; font-size:0.9rem; color:#444; font-weight:bold; }
+
+    /* --- Money-management bridge section (kept, reframed) --- */
+    .bridge { max-width:900px; margin:0 auto 2.5rem; padding:2rem; background:#f8f9fb; border-radius:8px; border:1px solid #e5e5e5; }
+    .bridge h2 { color:#1a1f71; font-family: Georgia, serif; margin-bottom:1rem; }
+    .bridge p { line-height:1.7; margin-bottom:1rem; }
+    .bridge a.tool-link { font-weight:bold; color:#1a1f71; }
+
+    /* --- Quote form --- */
+    .quote { max-width:640px; margin:0 auto 2.5rem; padding:2rem; background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); }
+    .quote h2 { text-align:center; color:#1a1f71; font-family: Georgia, serif; margin-top:0; }
+    .quote p.intro { text-align:center; color:#555; margin-bottom:1.5rem; font-size:0.95rem; }
+    .quote label { display:block; font-weight:bold; font-size:0.9rem; margin:0.8rem 0 0.3rem; color:#333; }
+    .quote input, .quote select { width:100%; padding:0.6rem; border:1px solid #ccc; border-radius:6px; font-size:1rem; box-sizing:border-box; }
+    .quote button { width:100%; margin-top:1.4rem; padding:0.9rem; background:#1a1f71; color:white; border:none; border-radius:6px; font-weight:bold; font-size:1rem; cursor:pointer; }
+    .quote button:hover { background:#162059; }
+    .quote .disclaimer { font-size:0.78rem; color:#888; margin-top:1rem; text-align:center; }
+
+    /* --- Articles Grid (existing money-tracking articles, kept) --- */
     .articles { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; max-width:1100px; margin:2rem auto; padding:1rem; }
     .card { background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition:0.3s; }
     .card:hover { transform:translateY(-4px); box-shadow:0 6px 15px rgba(0,0,0,0.12); }
@@ -54,162 +95,226 @@
     .card-content p { margin:0 0 1rem; line-height:1.6; }
     .card-content a { color:#1a1f71; font-weight:bold; }
 
-    /* --- Ads --- */
-    .ad-placeholder { background:#f0f0f0; padding:1rem; border-radius:4px; text-align:center; margin:2rem 0; }
+    .ad-placeholder { background:#f0f0f0; padding:1rem; border-radius:4px; text-align:center; margin:2rem 0; max-width:1100px; margin-left:auto; margin-right:auto; }
 
-    /* --- Footer --- */
     footer { background:#222; color:#ccc; text-align:center; padding:2rem 1rem; }
-    footer a { color:#1a1f71; text-decoration:none; margin:0 0.5rem; }
+    footer a { color:#8ea6ff; text-decoration:none; margin:0 0.5rem; }
     footer p { margin:0.5rem 0; }
+    footer .disclaimer { font-size:0.78rem; color:#999; max-width:700px; margin:1rem auto 0; }
+
+    .wa-float { position:fixed; bottom:20px; right:20px; background:#25D366; color:white; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.25); z-index:999; font-size:1.7rem; }
+    .wa-float:hover { background:#1ebe5b; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <div class="hamburger" onclick="toggleMenu()" id="menu-icon">☰</div>
     <div>
-      <h1>Quiet Cash</h1>
-      <p>Where Your Money Speaks</p>
+      <h1>QuietCash</h1>
+      <p>Insurance in Uganda Made Simple</p>
     </div>
   </header>
 
-  <!-- Nav -->
   <nav id="nav-menu">
     <a href="index.html">Home</a>
-    <a href="articles.html">Articles</a>
-    <a href="app.html">App</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="privacy.html">Privacy Policy</a>
+    <a href="life-insurance-uganda.html">Life</a>
+    <a href="medical-insurance-uganda.html">Medical</a>
+    <a href="motor-insurance-uganda.html">Motor</a>
+    <a href="education-insurance-uganda.html">Education</a>
+    <a href="articles.html">Guides</a>
+    <a href="insurance-finder.html">Find a Plan</a>
   </nav>
 
   <!-- Hero -->
   <section class="hero">
-    <img src="https://images.pexels.com/photos/4386374/pexels-photo-4386374.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Person tracking expenses" loading="lazy">
-    <h2>Your Money Is Watching. Are You Paying Attention?</h2>
-    <p>You just landed on a space where every coin counts, where small choices echo loudly, and where <span class="highlight">your cash tells stories you can’t ignore</span>. This isn’t just another finance page — it’s a guide, a mirror, and a silent witness to your decisions. Scroll, read, learn — and take control before your money moves without you.</p>
+    <h2>Insurance in Uganda Made Simple</h2>
+    <p>Understand your options. Protect what matters. Get guidance from Richard Kayizzi, Financial Adviser & Liberty Direct Sales Agent (DSA) — with no pressure and no jargon.</p>
     <div class="cta-buttons">
-      <a href="articles/choices-made-in-anger.html">Read Featured Story</a>
-      <a href="articles.html">Explore Articles</a>
-      <a href="app.html">Try Tool</a>
-      <a href="insurance/index.html">Insurance CRM</a>
+      <a href="insurance-finder.html">Find My Insurance Plan</a>
+      <a class="secondary" href="https://wa.me/256768372800?text=Hi%2C%20I%27m%20interested%20in%20requesting%20an%20insurance%20quote">Request a Quote</a>
+      <a href="articles.html">Insurance Guides</a>
     </div>
+    <p style="max-width:640px; margin:1.2rem auto 0; font-size:0.85rem; color:#555; line-height:1.5;">
+      QuietCash provides simple, Uganda-focused insurance education and connects you with Richard Kayizzi, Financial Adviser & Liberty Direct Sales Agent (DSA), for personalised guidance and quotations on Liberty products.
+    </p>
+    <p style="margin:1rem auto 0; font-size:0.95rem; color:#1a1f71; font-weight:bold;">
+      📱 Speak with Richard directly — WhatsApp or Call: 0768 372 800
+    </p>
   </section>
 
-  <!-- Ad Placeholder -->
+  <!-- Goal Picker -->
+  <section class="goal-picker">
+    <h2>What are you protecting?</h2>
+    <p class="sub">Pick your goal — we'll point you toward the right type of cover, or you can message us directly.</p>
+    <div class="goal-grid">
+      <div class="goal-card">
+        <span class="emoji">❤️</span>
+        <span class="label">My family</span>
+        <a class="go" href="insurance-finder.html?goal=family">Find my plan →</a>
+      </div>
+      <div class="goal-card">
+        <span class="emoji">🎓</span>
+        <span class="label">My child's education</span>
+        <a class="go" href="insurance-finder.html?goal=education">Find my plan →</a>
+      </div>
+      <div class="goal-card">
+        <span class="emoji">💰</span>
+        <span class="label">My savings/future</span>
+        <a class="go" href="insurance-finder.html?goal=savings">Find my plan →</a>
+      </div>
+      <div class="goal-card">
+        <span class="emoji">🏥</span>
+        <span class="label">My health</span>
+        <a class="go" href="insurance-finder.html?goal=medical">Find my plan →</a>
+      </div>
+      <div class="goal-card">
+        <span class="emoji">🚗</span>
+        <span class="label">My vehicle</span>
+        <a class="go" href="insurance-finder.html?goal=motor">Find my plan →</a>
+      </div>
+      <div class="goal-card">
+        <span class="emoji">🏢</span>
+        <span class="label">My business</span>
+        <a class="go" href="insurance-finder.html?goal=business">Find my plan →</a>
+      </div>
+    </div>
+    <p class="goal-note">These are educational pointers based on Liberty's product range, not a guaranteed recommendation or quote. Actual eligibility, premiums, and benefits depend on underwriting and policy terms.</p>
+  </section>
+
   <div class="ad-placeholder">
     <p>[Ad Placeholder: Leaderboard 728x90]</p>
   </div>
 
-  <!-- Featured Story -->
-  <section class="featured-story">
-    <p><em>"We often tell ourselves that we don’t got a choice. But the truth is, <strong>we always do</strong>."</em></p>
-    <blockquote>Choices made in anger can’t be undone. Not because they were loud, but because they were fast. Not because the world noticed, but because money noticed first.</blockquote>
-    <p>Answering back to your boss just to prove your coworkers you don’t care, spending impulsively to show you’re untouchable — every decision leaves a trace in your wallet. Learn how to turn moments of frustration into awareness, and take control of your money before it controls you.</p>
-    <a href="articles/choices-made-in-anger.html">Read Full Story</a>
+  <!-- Insurance Finder teaser -->
+  <section class="finder-teaser">
+    <h2>Not sure which insurance you need?</h2>
+    <p>Answer 5 quick questions about your goal, budget, and who depends on you — we'll show you which types of cover from Liberty's range are worth exploring, based on what you tell us.</p>
+    <div class="steps">
+      <span>1. Your goal</span>
+      <span>2. Monthly budget</span>
+      <span>3. Who depends on you</span>
+      <span>4. Timeframe</span>
+      <span>5. Age range</span>
+    </div>
+    <a class="cta" href="insurance-finder.html">Start the Insurance Finder</a>
   </section>
 
-  <!-- Content Section -->
-  <section class="content">
-    <h2>Why Track Your Money?</h2>
-    <p>Money disappears in the quietest ways — a 5,000 UGX airtime top-up, a 3,000 UGX boda-boda ride, a coffee bought without thought. By the end of the week, you wonder where it all went. Tracking gives you eyes where you didn’t have them, ears where you thought there was silence, and control where you assumed you had none.</p>
-
-    <h2>Top Tips to Start Today</h2>
-    <p>1. Set aside at least 10,000 UGX (~$2.60) weekly — small wins compound into security.<br>
-       2. Track all expenses, even the smallest, to spot hidden leaks.<br>
-       3. Carry only the cash you need — impulse has no home.<br>
-       4. Set realistic goals: a phone, a TV, school fees — and measure progress with Quiet Cash.</p>
-  </section>
-
-  <!-- Articles Grid -->
-  <section class="articles">
-<div class="card" style="border:1px solid #e5e5e5; border-radius:14px; padding:1rem; margin-bottom:1.5rem; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.06);">
-
-  <img 
-    src="https://images.pexels.com/photos/4584384/pexels-photo-4584384.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200"
-    alt="Why people fail financially by chasing fast money instead of building discipline and systems"
-    style="width:100%; height:300px; object-fit:cover; border-radius:10px; margin-bottom:1rem;"
-    loading="lazy"
-    decoding="async"
-  >
-
-  <h3 style="margin:0 0 0.5rem 0; font-size:1.15rem; color:#111;">
-    <a href="articles/the-reason-why-people-break-before-they-win.html" 
-       style="text-decoration:none; color:#0a66c2;">
-      Why Most People Fail Financially (And Don’t Even Know It)
-    </a>
-  </h3>
-
-  <p style="color:#555; font-size:0.95rem; line-height:1.45; margin-bottom:0.75rem;">
-    People don’t fail because money is impossible — they fail because they want it all at once.
-    Quiet Cash breaks down why chasing fast money destroys discipline, and how small wins build
-    unstoppable systems.
-  </p>
-
-  <a href="articles/the-reason-why-people-break-before-they-win.html"
-     style="display:inline-block; padding:0.45rem 0.9rem; background:#0a66c2; color:#fff; border-radius:8px; font-size:0.9rem; text-decoration:none;">
-    Read More →
-  </a>
-
-</div>
-
-
-<div class="card" style="border:1px solid #ddd; border-radius:12px; padding:1rem; margin-bottom:1.5rem; box-shadow:0 2px 5px rgba(0,0,0,0.08); background:#fff;">
-  <img src="https://i.postimg.cc/Nf22QzFt/In-Shot-20251228-120941365.jpg"
-       alt="If Advantage Was the Cheat Code, Everybody Would Be Winning"
-       style="width:100%; height:320px; object-fit:cover; border-radius:8px; margin-bottom:1rem;"
-       loading="lazy"
-       decoding="async">
-  <h3 style="color:#222; margin-bottom:0.5rem;">
-    <a href="articles/if-advantage-was-the-cheat-code.html" style="text-decoration:none; color:#0077cc;">
-      If Advantage Was the Cheat Code, Everybody Would Be Winning
-    </a>
-  </h3>
-  <p style="color:#555; font-size:0.95rem; line-height:1.4;">
-    A courtroom-style breakdown of workplace advantage, perception, and power. Learn how to turn rumors, threats, and unfair comparisons into a system of protection — Quiet Cash style.
-  </p>
-  <a href="articles/if-advantage-was-the-cheat-code.html" 
-     style="display:inline-block; margin-top:0.5rem; padding:0.4rem 0.8rem; background:#0077cc; color:#fff; border-radius:6px; text-decoration:none; font-size:0.9rem;">
-    Read More →
-  </a>
-</div>
-    <div class="card">
-      <img src="https://images.pexels.com/photos/7689731/pexels-photo-7689731.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Budgeting tips" loading="lazy">
-      <div class="card-content">
-        <h3>Daily Savings Made Simple</h3>
-        <p>Discover practical ways to save at least 5,000 UGX each day without stress.</p>
-        <a href="articles/daily-savings.html">Read More</a>
+  <!-- Popular Guides -->
+  <section class="guides">
+    <h2>Popular Insurance Guides</h2>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <h3><a href="life-insurance-uganda.html">Life Insurance Uganda</a></h3>
+        <p>What it covers, who needs it, and what affects your premium.</p>
+      </div>
+      <div class="guide-card">
+        <h3><a href="medical-insurance-uganda.html">Medical Insurance Uganda</a></h3>
+        <p>Private cover options and what to check before you buy.</p>
+      </div>
+      <div class="guide-card">
+        <h3><a href="motor-insurance-uganda.html">Motor Third Party Uganda</a></h3>
+        <p>Third party vs comprehensive — what's legally required and what's optional.</p>
+      </div>
+      <div class="guide-card">
+        <h3><a href="education-insurance-uganda.html">Education Insurance Uganda</a></h3>
+        <p>Planning ahead for school fees with a structured savings goal.</p>
+      </div>
+      <div class="guide-card">
+        <h3><a href="endowment-plans-uganda.html">Endowment Plans Uganda</a></h3>
+        <p>How savings-linked insurance plans work and who they suit.</p>
+      </div>
+      <div class="guide-card">
+        <h3><a href="how-insurance-works-uganda.html">How Insurance Works in Uganda</a></h3>
+        <p>A plain-language guide to insurance basics, terms, and how to choose cover that fits.</p>
       </div>
     </div>
+  </section>
 
-    <div class="card">
-      <img src="https://images.pexels.com/photos/4386426/pexels-photo-4386426.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Track expenses" loading="lazy">
-      <div class="card-content">
-        <h3>How to Track Expenses</h3>
-        <p>Learn the easiest methods to record and understand your daily spending.</p>
-        <a href="articles/track-expenses.html">Read More</a>
-      </div>
-    </div>
-
-    
-    </div>
-
-    <div style="text-align:center; margin-top:1rem;">
-      <a href="articles.html" style="display:inline-block; padding:0.8rem 1.6rem; background:#f39c12; color:white; border-radius:6px; font-weight:bold;">See More Articles</a>
+  <!-- Why QuietCash -->
+  <section class="why">
+    <h2>Why QuietCash?</h2>
+    <div class="why-grid">
+      <div><span class="icon">🗣️</span><p>Simple explanations</p></div>
+      <div><span class="icon">🇺🇬</span><p>Uganda-focused</p></div>
+      <div><span class="icon">⚖️</span><p>Understand your options</p></div>
+      <div><span class="icon">🙅</span><p>No pressure</p></div>
+      <div><span class="icon">💬</span><p>Talk to an adviser</p></div>
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- Bridge to existing money-tracking tool/content -->
+  <section class="bridge">
+    <h2>Already tracking your money with QuietCash?</h2>
+    <p>QuietCash started as a way to track daily spending and build savings discipline — that's still here. Once you know where your money goes, the natural next question is what happens if the unexpected shows up. That's where insurance comes in.</p>
+    <p><a class="tool-link" href="app.html">Try the money-tracking tool →</a> &nbsp;|&nbsp; <a class="tool-link" href="articles.html">Read the savings guides →</a></p>
+  </section>
+
+  <!-- Adviser Disclosure -->
+  <section class="why" style="background:#fff8e1; box-shadow:none; border:1px solid #f0e2b0;">
+    <h2 style="margin-bottom:0.6rem;">About Your Adviser</h2>
+    <p style="text-align:center; line-height:1.7; color:#444; max-width:640px; margin:0 auto;">
+      Richard Kayizzi is a Financial Adviser and Direct Sales Agent (DSA) for Liberty. QuietCash is an educational platform — quotations and product recommendations made through this site relate to Liberty's product range. Speak with Richard directly for guidance tailored to your situation.
+    </p>
+    <p style="text-align:center; margin-top:1rem; font-weight:bold; color:#1a1f71;">
+      📱 WhatsApp / Call: 0768 372 800
+    </p>
+  </section>
+
+  <!-- Get a Quote -->
+  <section class="quote" id="get-quote">
+    <h2>Get a Quote</h2>
+    <p class="intro">Tell us a bit about what you need — we'll open WhatsApp with your details filled in, ready to send.</p>
+    <form id="quoteForm">
+      <label for="q-name">Name</label>
+      <input type="text" id="q-name" required>
+
+      <label for="q-phone">Phone number</label>
+      <input type="tel" id="q-phone" placeholder="07XX XXX XXX" required>
+
+      <label for="q-goal">What are you looking for?</label>
+      <select id="q-goal">
+        <option value="Family protection / life insurance">Family protection / life insurance</option>
+        <option value="Child's education plan">Child's education plan</option>
+        <option value="Long-term savings plan">Long-term savings plan</option>
+        <option value="Medical/health insurance">Medical/health insurance</option>
+        <option value="Motor insurance">Motor insurance</option>
+        <option value="Business insurance">Business insurance</option>
+      </select>
+
+      <label for="q-budget">Monthly budget</label>
+      <select id="q-budget">
+        <option value="Below UGX 50,000">Below UGX 50,000</option>
+        <option value="UGX 50,000–100,000">UGX 50,000–100,000</option>
+        <option value="UGX 100,000–200,000">UGX 100,000–200,000</option>
+        <option value="UGX 200,000–500,000">UGX 200,000–500,000</option>
+        <option value="Above UGX 500,000">Above UGX 500,000</option>
+        <option value="Not sure">Not sure</option>
+      </select>
+
+      <label for="q-contact">Preferred contact</label>
+      <select id="q-contact">
+        <option value="WhatsApp">WhatsApp</option>
+        <option value="Phone call">Phone call</option>
+      </select>
+
+      <button type="submit">Request My Quote</button>
+      <p class="disclaimer">This sends your details to Richard Kayizzi (Financial Adviser & Liberty DSA) via WhatsApp so he can follow up. It's not a guaranteed quote — actual pricing depends on underwriting and your final application.</p>
+    </form>
+  </section>
+
   <footer>
-    <p>&copy; 2026 Quiet Cash. All Rights Reserved.</p>
+    <p>&copy; 2026 QuietCash. All Rights Reserved.</p>
     <p>
-      <a href="privacy.html">Privacy Policy</a> | 
-      <a href="terms.html">Terms of Service</a> | 
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="terms.html">Terms of Service</a> |
       <a href="contact.html">Contact</a>
     </p>
     <p>Email: support@quietcash.life</p>
+    <p class="disclaimer">QuietCash provides general information to help you understand insurance in Uganda. Richard Kayizzi is a Financial Adviser and Direct Sales Agent (DSA) for Liberty; quotations and applications made through this site relate to Liberty's product range. We do not guarantee quotes, premiums, or approval — these are determined by underwriting.</p>
   </footer>
+
+  <a class="wa-float" href="https://wa.me/256768372800?text=Hi%2C%20I%27m%20interested%20in%20getting%20an%20insurance%20quote" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">💬</a>
 
   <script>
     function toggleMenu() {
@@ -218,6 +323,26 @@
       nav.classList.toggle("show");
       icon.textContent = nav.classList.contains("show") ? "✖" : "☰";
     }
+
+    document.getElementById('quoteForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const name = document.getElementById('q-name').value.trim();
+      const phone = document.getElementById('q-phone').value.trim();
+      const goal = document.getElementById('q-goal').value;
+      const budget = document.getElementById('q-budget').value;
+      const contact = document.getElementById('q-contact').value;
+
+      const message =
+        "New quote request from QuietCash website:\n" +
+        "Name: " + name + "\n" +
+        "Phone: " + phone + "\n" +
+        "Looking for: " + goal + "\n" +
+        "Budget: " + budget + "\n" +
+        "Preferred contact: " + contact;
+
+      const waUrl = "https://wa.me/256768372800?text=" + encodeURIComponent(message);
+      window.open(waUrl, "_blank");
+    });
   </script>
 
 </body>
